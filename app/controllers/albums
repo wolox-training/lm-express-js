@@ -1,0 +1,27 @@
+const rp = require('request-promise');
+const typicodePath = 'https://jsonplaceholder.typicode.com';
+
+const options = {
+    uri: '',
+    json: true, // Automatically parses the JSON string in the response
+    resolveWithFullResponse: false
+};
+
+const albums = (req, res, next) => {
+    options.uri = `${typicodePath}/albums`;
+    rp(options)
+    .then(json =>{
+        res.status(200).send(json);
+    });
+}
+
+const photos = (req, res, next) => {
+    options.uri = `${typicodePath}/photos/${(req.params.id).toString()}`;
+    rp(options)
+    .then(json =>{
+        res.status(200).send(json);
+    });
+}
+
+exports.albums = albums;
+exports.photos = photos;
