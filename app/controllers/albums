@@ -1,27 +1,18 @@
-const rp = require('request-promise');
-const typicodePath = 'https://jsonplaceholder.typicode.com';
+const { requestAlbums, requestAlbumPhotos } = require('../services/typicode');
 
-const options = {
-    uri: '',
-    json: true, // Automatically parses the JSON string in the response
-    resolveWithFullResponse: false
+exports.getAlbums = (req, res, next) => {
+  requestAlbums()
+    .then(json => {
+      res.status(200).send(json);
+    })
+    .catch(next);
 };
 
-const albums = (req, res, next) => {
-    options.uri = `${typicodePath}/albums`;
-    rp(options)
-    .then(json =>{
-        res.status(200).send(json);
-    });
-}
-
-const photos = (req, res, next) => {
-    options.uri = `${typicodePath}/photos/${(req.params.id).toString()}`;
-    rp(options)
-    .then(json =>{
-        res.status(200).send(json);
-    });
-}
-
-exports.albums = albums;
-exports.photos = photos;
+exports.getAlbumPhotos = (req, res, next) => {
+  const albumId = req.params.id;
+  requestAlbumPhotos(albumId)
+    .then(json => {
+      res.status(200).send(json);
+    })
+    .catch(next);
+};
