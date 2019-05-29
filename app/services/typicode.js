@@ -1,27 +1,24 @@
 const request = require('request-promise'),
-  typicodePath = 'https://jsonplaceholder.typicode.com',
-  apiError = require('../errors');
+  { apiError } = require('../errors'),
+  logger = require('../logger'),
+  typicodePath = 'https://jsonplaceholder.typicode.com';
 
-function options(endpoint) {
-  return {
-    uri: endpoint,
-    json: true,
-    resolveWithFullResponse: false
-  };
-}
+const options = endpoint => ({
+  uri: endpoint,
+  json: true,
+  resolveWithFullResponse: false
+});
 
 exports.requestAlbums = () => {
-  try {
-    return request(options(`${typicodePath}/albums`));
-  } catch (error) {
+  logger.info('Requesting albums to jsonplaceholder API');
+  return request(options(`${typicodePath}/albums`)).catch(error => {
     throw apiError(error.message);
-  }
+  });
 };
 
 exports.requestAlbumPhotos = albumId => {
-  try {
-    return request(options(`${typicodePath}/photos?albumId=${albumId}`));
-  } catch (error) {
+  logger.info(`Requesting album -with id ${albumId}- photos to jsonplaceholder API`);
+  return request(options(`${typicodePath}/photos?albumId=${albumId}`)).catch(error => {
     throw apiError(error.message);
-  }
+  });
 };
