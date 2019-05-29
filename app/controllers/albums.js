@@ -1,0 +1,18 @@
+const { requestAlbums, requestAlbumPhotos } = require('../services/typicode');
+
+exports.getAlbums = (req, res, next) => {
+  requestAlbums()
+    .then(json => {
+      res.status(200).send(json);
+    })
+    .catch(next);
+};
+
+exports.getAlbumPhotos = (req, res, next) => {
+  const albumId = req.params.id;
+  requestAlbumPhotos(albumId)
+    .then(json => {
+      res.status(200).send(json);
+    })
+    .catch(next);
+};
