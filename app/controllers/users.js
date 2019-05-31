@@ -1,11 +1,14 @@
 const emailDomain = '@wolox.com.ar',
   bcrypt = require('bcrypt'),
-  { databaseError, hashError, dataError } = require('../errors'),
+  { databaseError, hashError, validationError } = require('../errors'),
+  Users = require('../models').user,
+  logger = require('../logger'),
   saltRounds = 10,
-  Users = require('../models').user;
+  minPasswordLength = 8,
+  alphanumericRegex = /^[0-9a-zA-Z]+$/;
 
 // completar estas funciones
-const checkValidPassword = pass => pass.length >= 8 && pass.match(/^[0-9a-zA-Z]+$/);
+const checkValidPassword = pass => pass.length >= minPasswordLength && pass.match(alphanumericRegex);
 
 const checkValidEmail = email => email.endsWith(emailDomain);
 
@@ -23,21 +26,22 @@ const createUser = (firstName, lastName, email, password) =>
 
 exports.signUp = (req, res, next) => {
   const { firstName, lastName, email, password } = req.body;
+  logger.info(`Creating user ${firstName}`);
 
   if (!checkValidEmail(email)) {
-    return next(dataError('Invalid email'));
+    return next(validationError('Invalid email'));
   }
   if (!checkValidPassword(password)) {
-    return next(dataError('Invalid password. Must have 8 aplhanumeric characters'));
+    return next(validationError(`Invalid password. Must have ${minPasswordLength} aplhanumeric characters`));
   }
-
+  logger.info('Email and password correctly validated');
   return hashPassword(password)
     .then(hash => createUser(firstName, lastName, email, hash))
     .then(([user, created]) => {
       if (created) {
         res.status(200).send(`User ${user.firstName} created`);
       } else {
-        throw dataError('Email already used');
+        throw validationError('Email already used');
       }
     })
     .catch(next);
