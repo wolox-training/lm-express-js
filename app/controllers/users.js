@@ -7,7 +7,6 @@ const emailDomain = '@wolox.com.ar',
   minPasswordLength = 8,
   alphanumericRegex = /^[0-9a-zA-Z]+$/;
 
-// completar estas funciones
 const checkValidPassword = pass => pass.length >= minPasswordLength && pass.match(alphanumericRegex);
 
 const checkValidEmail = email => email.endsWith(emailDomain);
@@ -25,7 +24,9 @@ const createUser = (firstName, lastName, email, password) =>
   }).catch(error => databaseError(error.message));
 
 exports.signUp = (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { first_name, last_name, email, password } = req.body;
+  const firstName = first_name,
+    lastName = last_name;
   logger.info(`Creating user ${firstName}`);
 
   if (!checkValidEmail(email)) {
