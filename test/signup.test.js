@@ -2,6 +2,8 @@ const request = require('supertest'),
   app = require('../app.js'),
   Users = require('../app/models').user,
   { factory } = require('factory-girl'),
+  // { hashError } = require('../app/errors'),
+  bcrypt = require('bcrypt'),
   validationErrorStatus = 401,
   createdCorrectlyStatus = 200,
   firstName = 'fn',
@@ -135,7 +137,12 @@ describe('POST /users', () => {
         })
         .then(() =>
           Users.findOne({ where: { email: correctEmail } }).then(result => {
-            expect(result);
+            expect(result.firstName).toBe(firstName);
+            expect(result.lastName).toBe(lastName);
+            expect(result.email).toBe(correctEmail);
+            return bcrypt.compare(correctPassword, result.password).then(res => {
+              expect(res).toBe(true);
+            });
           })
         ));
   });
