@@ -140,7 +140,6 @@ describe('POST /users', () => {
             expect(result.lastName).toBe(lastName);
             expect(result.email).toBe(correctEmail);
             return comparePasswords(correctPassword, result.password).then(res => {
-              console.log(res);
               expect(res).toBe(true);
             });
           })
