@@ -55,20 +55,8 @@ describe('Test invalid email', () => {
       });
   });
 
-  /* test('Create user with used email', () => {
+  test('Create user with used email', () => {
     expect.assertions(2);
-    request(app)
-      .post('/users')
-      .send({
-        first_name: firstName,
-        last_name: lastName,
-        email: correctEmail,
-        password: correctPassword
-      })
-      .then(response => {
-        expect(response.status).toBe(200);
-      });
-
     return request(app)
       .post('/users')
       .send({
@@ -78,9 +66,20 @@ describe('Test invalid email', () => {
         password: correctPassword
       })
       .then(response => {
-        expect(response.status).toBe(validationErrorStatus);
+        expect(response.status).toBe(createdCorrectlyStatus);
+        return request(app)
+          .post('/users')
+          .send({
+            first_name: firstName,
+            last_name: lastName,
+            email: correctEmail,
+            password: correctPassword
+          })
+          .then(response2 => {
+            expect(response2.status).toBe(validationErrorStatus);
+          });
       });
-  });*/
+  });
 });
 
 describe('Test missing parameters', () => {
