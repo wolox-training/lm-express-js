@@ -5,7 +5,7 @@ const { validationError } = require('../errors'),
 
 exports.signUp = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
-  logger.info(`Email and password correctly validated. Creating user ${firstName}`);
+  logger.info(`Creating user ${firstName}`);
 
   return hashPassword(password)
     .then(hash => Users.createUser(firstName, lastName, email, hash))

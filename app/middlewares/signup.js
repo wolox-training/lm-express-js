@@ -1,4 +1,5 @@
 const { validationError } = require('../errors'),
+  logger = require('../logger'),
   emailDomain = '@wolox.com.ar',
   minPasswordLength = 8,
   alphanumericRegex = /^[0-9a-zA-Z]+$/;
@@ -19,5 +20,6 @@ exports.checkValidInputs = (req, res, next) => {
   if (!checkValidPassword(password)) {
     return next(validationError(`Invalid password. Must have ${minPasswordLength} aplhanumeric characters`));
   }
+  logger.info('Email and password correctly validated');
   return next();
 };

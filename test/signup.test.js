@@ -2,7 +2,7 @@ const request = require('supertest'),
   app = require('../app.js'),
   Users = require('../app/models').user,
   { factory } = require('factory-girl'),
-  bcrypt = require('bcrypt'),
+  { comparePasswords } = require('../app/helpers/hasher'),
   validationErrorStatus = 401,
   createdCorrectlyStatus = 200,
   firstName = 'fn',
@@ -139,7 +139,8 @@ describe('POST /users', () => {
             expect(result.firstName).toBe(firstName);
             expect(result.lastName).toBe(lastName);
             expect(result.email).toBe(correctEmail);
-            return bcrypt.compare(correctPassword, result.password).then(res => {
+            return comparePasswords(correctPassword, result.password).then(res => {
+              console.log(res);
               expect(res).toBe(true);
             });
           })
