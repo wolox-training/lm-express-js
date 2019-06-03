@@ -59,6 +59,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
+    "factory-girl": "^5.0.4",
     "jwt-simple": "^0.5.1",
     "morgan": "^1.9.1",
     "node-fetch": "^2.6.0",

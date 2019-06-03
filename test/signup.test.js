@@ -1,5 +1,7 @@
 const request = require('supertest'),
   app = require('../app.js'),
+  Users = require('../app/models').user,
+  { factory } = require('factory-girl'),
   validationErrorStatus = 401,
   createdCorrectlyStatus = 200,
   firstName = 'fn',
@@ -56,18 +58,17 @@ describe('Test invalid email', () => {
   });
 
   test('Create user with used email', () => {
-    expect.assertions(2);
-    return request(app)
-      .post('/users')
-      .send({
-        first_name: firstName,
-        last_name: lastName,
-        email: correctEmail,
-        password: correctPassword
-      })
-      .then(response => {
-        expect(response.status).toBe(createdCorrectlyStatus);
-        return request(app)
+    factory.define('user', Users, buildOptions => ({
+      first_name: buildOptions.firstName,
+      last_name: buildOptions.lastName,
+      email: buildOptions.email,
+      password: buildOptions.password
+    }));
+    expect.assertions(1);
+    return factory
+      .create('user', { firstName, lastName, email: correctEmail, password: correctPassword })
+      .then(() =>
+        request(app)
           .post('/users')
           .send({
             first_name: firstName,
@@ -75,9 +76,9 @@ describe('Test invalid email', () => {
             email: correctEmail,
             password: correctPassword
           })
-          .then(response2 => {
-            expect(response2.status).toBe(validationErrorStatus);
-          });
+      )
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
       });
   });
 });
