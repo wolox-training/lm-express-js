@@ -1,110 +1,168 @@
 const request = require('supertest'),
   app = require('../app.js'),
-  { validationError } = require('../app/errors'),
-  correctPassword = 'password',
-  shortPassword = 'pass',
-  passwordWithDots = 'password..',
-  correctEmail = 'correct@wolox.com.ar',
-  invalidEmail = 'invalid@prueba.com.ar',
+  validationErrorStatus = 401,
+  createdCorrectlyStatus = 200,
   firstName = 'fn',
-  lastName = 'ln';
+  lastName = 'ln',
+  correctPassword = 'password',
+  correctEmail = 'email@wolox.com.ar';
 
 describe('Test invalid password', () => {
-  test('Create user with short password', () =>
-    request(app)
-      .post('/user', {
-        firstName,
-        lastName,
+  test('Create user with short password', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
         email: correctEmail,
-        password: shortPassword
+        password: 'pass'
       })
-      .catch(error => {
-        expect(error.status).toBe(validationError.status);
-      }));
-});
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });
 
-describe('Test invalid password', () => {
-  test('Create user with password with invalid characters', () =>
-    request(app)
-      .post('/user', {
-        firstName,
-        lastName,
+  test('Create user with password with invalid characters', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
         email: correctEmail,
-        password: passwordWithDots
+        password: 'passwo..rd'
       })
-      .catch(error => {
-        expect(error.status).toBe(validationError.status);
-      }));
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });
 });
 
 describe('Test invalid email', () => {
-  test('Create user with email with another domain (different from wolox)', () =>
-    request(app)
-      .post('/user', {
-        firstName,
-        lastName,
-        email: invalidEmail,
+  test('Create user with email with domain different from wolox', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
+        email: 'email@email.com.ar',
         password: correctPassword
       })
-      .catch(error => {
-        expect(error.status).toBe(validationError.status);
-      }));
-});
-
-describe('Test used mail', () => {
-  request(app).post('/user', {
-    firstName,
-    lastName,
-    email: correctEmail,
-    password: correctPassword
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
   });
-  test('Create user with an existing email', () =>
+
+  /* test('Create user with used email', () => {
+    expect.assertions(2);
     request(app)
-      .post('/user', {
-        firstName,
-        lastName,
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
         email: correctEmail,
         password: correctPassword
       })
-      .catch(error => {
-        expect(error.status).toBe(validationError.status);
-      }));
+      .then(response => {
+        expect(response.status).toBe(200);
+      });
+
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
+        email: correctEmail,
+        password: correctPassword
+      })
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });*/
 });
 
 describe('Test missing parameters', () => {
-  test('Create user without password', () =>
-    request(app)
-      .post('/user', {
-        firstName,
-        lastName,
+  test('Create user without password', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
         email: correctEmail
       })
-      .catch(error => {
-        expect(error.status).toBe(validationError.status);
-      }));
-});
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });
 
-describe('Test missing parameters', () => {
-  test('Create user without email', () =>
-    request(app)
-      .post('/user', {
-        firstName,
-        lastName,
+  test('Create user without email', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
         password: correctPassword
       })
-      .catch(error => {
-        expect(error.status).toBe(validationError.status);
-      }));
-});
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });
 
-describe('Test missing parameters', () => {
-  test('Create user without name', () =>
-    request(app)
-      .post('/user', {
+  test('Create user without first name', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        last_name: lastName,
         email: correctEmail,
         password: correctPassword
       })
-      .catch(error => {
-        expect(error.status).toBe(validationError.status);
-      }));
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });
+
+  test('Create user without last name', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        email: correctEmail,
+        password: correctPassword
+      })
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });
+
+  test('Create user without any parameter', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .then(response => {
+        expect(response.status).toBe(validationErrorStatus);
+      });
+  });
+});
+
+describe('Creat user correctly', () => {
+  test('Create user with all paramaters set up correctly', () => {
+    expect.assertions(1);
+    return request(app)
+      .post('/users')
+      .send({
+        first_name: firstName,
+        last_name: lastName,
+        email: correctEmail,
+        password: correctPassword
+      })
+      .then(response => {
+        expect(response.status).toBe(createdCorrectlyStatus);
+      });
+  });
 });

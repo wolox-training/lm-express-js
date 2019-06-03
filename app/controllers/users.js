@@ -7,9 +7,9 @@ const emailDomain = '@wolox.com.ar',
   minPasswordLength = 8,
   alphanumericRegex = /^[0-9a-zA-Z]+$/;
 
-const checkValidPassword = pass => pass.length >= minPasswordLength && pass.match(alphanumericRegex);
+const checkValidPassword = pass => pass && pass.length >= minPasswordLength && pass.match(alphanumericRegex);
 
-const checkValidEmail = email => email.endsWith(emailDomain);
+const checkValidEmail = email => email && email.endsWith(emailDomain);
 
 const hashPassword = pass => bcrypt.hash(pass, saltRounds).catch(error => hashError(error.message));
 
@@ -24,10 +24,12 @@ const createUser = (firstName, lastName, email, password) =>
   }).catch(error => databaseError(error.message));
 
 exports.signUp = (req, res, next) => {
-  const { first_name, last_name, email, password } = req.body;
-  const firstName = first_name,
-    lastName = last_name;
+  const { first_name: firstName, last_name: lastName, email, password } = req.body;
   logger.info(`Creating user ${firstName}`);
+
+  if (!firstName || !lastName) {
+    return next(validationError('Missing parameters. firstName and lastName are required'));
+  }
 
   if (!checkValidEmail(email)) {
     return next(validationError('Invalid email'));
