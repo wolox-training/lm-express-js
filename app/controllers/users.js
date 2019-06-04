@@ -1,7 +1,8 @@
 const { validationError } = require('../errors'),
   Users = require('../models').user,
   logger = require('../logger'),
-  { hashPassword, comparePasswords } = require('../helpers/hasher');
+  { hashPassword, comparePasswords } = require('../helpers/hasher'),
+  { getUserPassword } = require('../helpers/users');
 
 exports.signUp = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
@@ -17,13 +18,6 @@ exports.signUp = (req, res, next) => {
       }
     })
     .catch(next);
-};
-
-const getUserPassword = user => {
-  if (user) {
-    return user.password;
-  }
-  throw validationError('Email does not exist');
 };
 
 exports.signIn = (req, res, next) => {
