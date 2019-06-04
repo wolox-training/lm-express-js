@@ -1,4 +1,6 @@
 'use strict';
+const { databaseError } = require('../errors');
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     'user',
@@ -31,6 +33,17 @@ module.exports = (sequelize, DataTypes) => {
     },
     { underscored: true }
   );
+
+  User.createUser = (firstName, lastName, email, password) =>
+    User.findOrCreate({
+      where: { email },
+      defaults: {
+        firstName,
+        lastName,
+        password
+      }
+    }).catch(error => databaseError(error.message));
+
   /* User.associate = function(models) {
     // associations can be defined here
   };*/
