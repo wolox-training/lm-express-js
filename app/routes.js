@@ -2,7 +2,7 @@
 const { getAlbums, getAlbumPhotos } = require('./controllers/albums'),
   { healthCheck } = require('./controllers/healthCheck'),
   { signUp, signIn } = require('./controllers/users'),
-  { checkValidEmailAndPassword, checkValidName } = require('../app/middlewares/signIn');
+  { checkValidEmailAndPassword, checkValidName } = require('../app/middlewares/users');
 
 exports.init = app => {
   app.get('/health', healthCheck);
