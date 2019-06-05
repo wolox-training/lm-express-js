@@ -46,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
 
   User.findUser = email => User.findOne({ where: { email } }).catch(error => databaseError(error.message));
 
+  User.getUsers = (offset, limit) =>
+    User.findAndCountAll({ attributes: ['firstName', 'lastName', 'email'], offset, limit }).catch(error =>
+      databaseError(error.message)
+    );
   /* User.associate = function(models) {
     // associations can be defined here
   };*/

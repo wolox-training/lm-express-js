@@ -3,7 +3,7 @@ const { validationError } = require('../errors'),
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
   { getUserPassword } = require('../helpers/users'),
-  { createToken } = require('../helpers/token');
+  { createToken, validateToken } = require('../helpers/token');
 
 exports.signUp = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
@@ -33,6 +33,25 @@ exports.signIn = (req, res, next) => {
         res.status(200).send(createToken(email));
       } else {
         throw validationError('Password does not match with the email');
+      }
+    })
+    .catch(next);
+};
+
+exports.listUsers = (req, res, next) => {
+  const { token, offset, limit } = req.query;
+  logger.info("Validating user's permissions");
+  return validateToken(token)
+    .then(validated => {
+      if (validated) {
+        logger.info('User validated.\nGetting all users for listing them');
+        Users.getUsers(offset, limit)
+          .then(foundUsers => {
+            res.status(200).send(foundUsers);
+          })
+          .catch(next);
+      } else {
+        throw validationError("User doesn't have permissions to request users list");
       }
     })
     .catch(next);
