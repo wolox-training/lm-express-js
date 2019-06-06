@@ -41,6 +41,12 @@ const config = {
     session: {
       header_name: 'authorization',
       secret: process.env.NODE_API_SESSION_SECRET
+    },
+
+    token: {
+      algorithm: process.env.TOKEN_ALGORITHM,
+      tokenType: process.env.TOKEN_TYPE,
+      pass: process.env.TOKEN_PASS
     }
   }
 };
