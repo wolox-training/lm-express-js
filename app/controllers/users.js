@@ -1,5 +1,5 @@
 const { validationError } = require('../errors'),
-  Users = require('../models').user,
+  User = require('../models').user,
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
   { createToken, validateToken } = require('../helpers/token');
@@ -9,7 +9,7 @@ exports.signUp = (req, res, next) => {
   logger.info(`Creating user ${firstName}`);
 
   return hashPassword(password)
-    .then(hash => Users.createUser(firstName, lastName, email, hash))
+    .then(hash => User.createUser(firstName, lastName, email, hash))
     .then(([user, created]) => {
       if (created) {
         res.status(200).send(`User ${user.firstName} created`);
@@ -24,8 +24,13 @@ exports.signIn = (req, res, next) => {
   const { email, password } = req.body;
   logger.info(`Signing in - email: ${email}`);
 
-  return Users.findUserByEmail(email)
-    .then(foundUser => Users.getUserPassword(foundUser))
+  return User.findUserByEmail(email)
+    .then(foundUser => {
+      if (foundUser) {
+        return foundUser.password;
+      }
+      throw validationError('User not found');
+    })
     .then(foundUserPassword => comparePasswords(password, foundUserPassword))
     .then(result => {
       if (result) {
@@ -44,7 +49,7 @@ exports.listUsers = (req, res, next) => {
     .then(validated => {
       if (validated) {
         logger.info('User validated.\nGetting all users for listing them');
-        Users.getUsers(offset, limit)
+        User.getUsers(offset, limit)
           .then(foundUsers => {
             res.status(200).send(foundUsers);
           })
