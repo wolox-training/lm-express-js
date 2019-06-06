@@ -9,5 +9,5 @@ exports.createToken = sub => {
   payload.sub = sub;
   payload.nbf = jsrasign.jws.IntDate.get('now');
   payload.iat = payload.nbf;
-  return jsrasign.jws.JWS.sign('HS256', header, payload, { b64: pass });
+  return jsrasign.jws.JWS.sign('HS256', header, payload, pass);
 };
