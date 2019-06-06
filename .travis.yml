@@ -7,6 +7,9 @@ sudo: true
 
 env:
   - CXX=g++-4.8 NODE_ENV=testing
+  - TOKEN_ALGORITHM=HS256
+  - TOKEN_TYPE=JWT
+  - TOKEN_PASS=c2VjcmV0
 addons:
   apt:
     sources:
