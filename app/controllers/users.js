@@ -27,7 +27,7 @@ exports.signIn = (req, res, next) => {
   return User.findUserByEmail(email)
     .then(foundUser => {
       if (foundUser) {
-        return User.getUserPassword(foundUser);
+        return foundUser.password;
       }
       throw validationError('User not found');
     })
