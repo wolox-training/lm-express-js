@@ -2,7 +2,6 @@ const { validationError } = require('../errors'),
   Users = require('../models').user,
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
-  { getUserPassword } = require('../helpers/users'),
   { createToken, validateToken } = require('../helpers/token');
 
 exports.signUp = (req, res, next) => {
@@ -25,12 +24,12 @@ exports.signIn = (req, res, next) => {
   const { email, password } = req.body;
   logger.info(`Signing in - email: ${email}`);
 
-  return Users.findUser(email)
-    .then(foundUser => getUserPassword(foundUser))
+  return Users.findUserByEmail(email)
+    .then(foundUser => Users.getUserPassword(foundUser))
     .then(foundUserPassword => comparePasswords(password, foundUserPassword))
     .then(result => {
       if (result) {
-        res.status(200).send(createToken(email));
+        res.status(200).send({ token: createToken(email) });
       } else {
         throw validationError('Password does not match with the email');
       }

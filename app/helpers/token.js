@@ -1,15 +1,15 @@
 const jsrasign = require('jsrsasign'),
   { tokenError } = require('../errors'),
-  algorithm = 'HS256',
-  tokenType = 'JWT',
-  pass = 'c2VjcmV0';
+  algorithm = process.env.TOKEN_ALGORITHM,
+  tokenType = process.env.TOKEN_TYPE,
+  pass = process.env.TOKEN_PASS;
 
-exports.createToken = email => {
+exports.createToken = sub => {
   const header = { alg: algorithm, typ: tokenType };
   const payload = {};
-  payload.sub = email;
+  payload.sub = sub;
   payload.nbf = jsrasign.jws.IntDate.get('now');
-  payload.iat = jsrasign.jws.IntDate.get('now');
+  payload.iat = payload.nbf;
   return jsrasign.jws.JWS.sign('HS256', header, payload, pass);
 };
 

@@ -54,8 +54,6 @@ describe('POST /susers/sessions', () => {
       request(app)
         .post('/users')
         .send({
-          first_name: firstName,
-          last_name: lastName,
           email: correctEmail,
           password: correctPassword
         })
@@ -117,6 +115,7 @@ describe('POST /susers/sessions', () => {
             })
             .then(response => {
               expect(response.status).toBe(200);
+              expect(response.body.token.length).toBeGreaterThan(0);
             })
         );
     });

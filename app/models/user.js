@@ -1,5 +1,5 @@
 'use strict';
-const { databaseError } = require('../errors');
+const { databaseError, validationError } = require('../errors');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -44,12 +44,20 @@ module.exports = (sequelize, DataTypes) => {
       }
     }).catch(error => databaseError(error.message));
 
-  User.findUser = email => User.findOne({ where: { email } }).catch(error => databaseError(error.message));
+  User.findUserByEmail = email =>
+    User.findOne({ where: { email } }).catch(error => databaseError(error.message));
 
   User.getUsers = (offset, limit) =>
     User.findAndCountAll({ attributes: ['firstName', 'lastName', 'email'], offset, limit }).catch(error =>
       databaseError(error.message)
     );
+
+  User.getUserPassword = user => {
+    if (user) {
+      return user.password;
+    }
+    throw validationError("user must be valid. It can't be null");
+  };
   /* User.associate = function(models) {
     // associations can be defined here
   };*/
