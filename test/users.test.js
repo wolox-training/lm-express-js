@@ -1,6 +1,10 @@
 const request = require('supertest'),
   app = require('../app.js'),
-  validationErrorStatus = 401;
+  validationErrorStatus = 401,
+  firstName = 'fn1',
+  lastName = 'ln1',
+  correctPassword = 'password',
+  correctEmail = 'email@wolox.com.ar';
 
 describe('GET /users', () => {
   describe('Test invalid inputs', () => {
@@ -44,7 +48,7 @@ describe('GET /users', () => {
     });
   });
 
-  describe('Test missing parameters', () => {
+  /* describe('Test missing parameters', () => {
     test.each([
       {
         offset: 10,
@@ -67,5 +71,38 @@ describe('GET /users', () => {
           expect(response.status).toBe(validationErrorStatus);
         })
     );
+  });*/
+  describe('Test valid token', () => {
+    test('Create user and list users with valid token', () => {
+      request(app)
+        .post('/users')
+        .send({
+          first_name: firstName,
+          last_name: lastName,
+          email: correctEmail,
+          password: correctPassword
+        })
+        .then(() =>
+          request(app)
+            .post('/users/sessions')
+            .send({
+              email: correctEmail,
+              password: correctPassword
+            })
+        )
+        .then(response => {
+          request(app)
+            .get('/users')
+            .send({
+              token: response.body.token,
+              offset: 10,
+              limit: 10
+            })
+            .then(response2 => {
+              expect(response2.status).toBe(200);
+              console.log(response2);
+            });
+        });
+    });
   });
 });
