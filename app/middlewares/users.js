@@ -33,3 +33,6 @@ exports.checkValidName = (req, res, next) => {
   logger.info('Name correctly validated');
   return next();
 };
+
+exports.checkValidOffsetAndLimit = (offset, limit) => offset && limit && offset > 0 && limit > 0;
+exports.checkNotNullToken = token => token !== null;
