@@ -44,6 +44,8 @@ module.exports = (sequelize, DataTypes) => {
       }
     }).catch(error => databaseError(error.message));
 
+  User.findUserByEmail = email =>
+    User.findOne({ where: { email } }).catch(error => databaseError(error.message));
   /* User.associate = function(models) {
     // associations can be defined here
   };*/

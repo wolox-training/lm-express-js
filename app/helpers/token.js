@@ -1,0 +1,11 @@
+const jsrasign = require('jsrsasign'),
+  config = require('../../config').common.token;
+
+exports.createToken = sub => {
+  const header = { alg: config.algorithm, typ: config.tokenType };
+  const payload = {};
+  payload.sub = sub;
+  payload.nbf = jsrasign.jws.IntDate.get('now');
+  payload.iat = payload.nbf;
+  return jsrasign.jws.JWS.sign(config.algorithm, header, payload, config.pass);
+};

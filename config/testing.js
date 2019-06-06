@@ -8,6 +8,12 @@ exports.config = {
 
     session: {
       secret: 'some-super-secret'
+    },
+
+    token: {
+      algorithm: 'HS256',
+      tokenType: 'JWT',
+      pass: 'c2VjcmV0'
     }
   }
 };
