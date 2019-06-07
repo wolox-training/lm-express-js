@@ -4,39 +4,35 @@ const { validationError } = require('../errors'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
   { createToken, validateToken } = require('../helpers/token');
 
-/* const signUpWithAdminCondition = userData => {
+const signUpWithAdminCondition = userData => {
   const { firstName, lastName, email, password, isAdmin } = userData;
   if (isAdmin) {
-    //
-  } else {
-    logger.info(`Creating user ${firstName}`);
-
-    return hashPassword(password)
-      .then(hash => User.createUser(firstName, lastName, email, hash))
-      .then(([user, created]) => {
-        if (created) {
-          res.status(200).send(`User ${user.firstName} created`);
-        } else {
-          throw validationError('Email already used');
-        }
-      });
+    logger.info(`Creating user ${firstName} as admin`);
+    return hashPassword(password).then(hash => User.createUserAdmin(firstName, lastName, email, hash));
   }
+  logger.info(`Creating user ${firstName}`);
+  return hashPassword(password).then(hash => User.createUser(firstName, lastName, email, hash));
 };
 
 exports.signUpAdmin = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
-  logger.info(`Creating user ${firstName}`);
-  return signUpWithAdminCondition({ firstName, lastName, email, password, isAdmin: true }).catch(error =>
-    next(error)
-  );
+
+  return signUpWithAdminCondition({ firstName, lastName, email, password, isAdmin: true })
+    .then(([user, created]) => {
+      if (created) {
+        res.status(200).send(`User ${user.firstName} created as admin`);
+      } else {
+        User.makeAdmin(email);
+        logger.info(`User ${firstName} has admin permission now`);
+      }
+    })
+    .catch(error => next(error));
 };
-*/
 
 exports.signUp = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
-  logger.info(`Creating user ${firstName}`);
-  return hashPassword(password)
-    .then(hash => User.createUser(firstName, lastName, email, hash))
+
+  signUpWithAdminCondition({ firstName, lastName, email, password, isAdmin: false })
     .then(([user, created]) => {
       if (created) {
         res.status(200).send(`User ${user.firstName} created`);
@@ -46,6 +42,7 @@ exports.signUp = (req, res, next) => {
     })
     .catch(error => next(error));
 };
+
 exports.signIn = (req, res, next) => {
   const { email, password } = req.body;
   logger.info(`Signing in - email: ${email}`);
