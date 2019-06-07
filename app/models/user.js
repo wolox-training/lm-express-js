@@ -49,9 +49,9 @@ module.exports = (sequelize, DataTypes) => {
     User.findOne({ where: { email } }).catch(error => databaseError(error.message));
 
   User.getUsers = (offset, limit) =>
-    User.findAndCountAll({ attributes: ['firstName', 'lastName', 'email'], offset, limit }).catch(error =>
-      databaseError(error.message)
-    );
+    User.findAndCountAll({ attributes: ['firstName', 'lastName', 'email'], offset, limit })
+      .then(response => ({ count: response.count, users: response.rows }))
+      .catch(error => databaseError(error.message));
 
   User.createUserAdmin = (firstName, lastName, email, password) =>
     User.findOrCreate({

@@ -1,18 +1,23 @@
 const request = require('supertest'),
   app = require('../app.js'),
-  validationErrorStatus = 401;
+  validationErrorStatus = 401,
+  tokenErrorStatus = 500,
+  { factory } = require('factory-girl'),
+  { hashPassword } = require('../app/helpers/hasher'),
+  firstName = 'fn',
+  lastName = 'ln',
+  correctPassword = 'password';
 
 describe('GET /users', () => {
   describe('Test invalid inputs', () => {
-    test('Test invalid offset', () =>
+    test('Test invalid page', () =>
       request(app)
         .get('/users')
-        .query({
+        .send({
           token: 'token',
-          offset: -5,
+          page: -5,
           limit: 10
         })
-        .send()
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
         }));
@@ -22,7 +27,7 @@ describe('GET /users', () => {
         .get('/users')
         .send({
           token: 'token',
-          offset: 10,
+          page: 10,
           limit: -5
         })
         .then(response => {
@@ -34,11 +39,11 @@ describe('GET /users', () => {
         .get('/users')
         .send({
           token: 'token',
-          offset: 10,
+          page: 10,
           limit: 8
         })
         .then(response => {
-          expect(response.status).toBe(validationErrorStatus);
+          expect(response.status).toBe(tokenErrorStatus);
         }));
   });
 
@@ -46,14 +51,14 @@ describe('GET /users', () => {
     test.each([
       {
         token: 'token',
-        offset: 10
+        page: 10
       },
       {
         token: 'token',
         limit: 10
       },
       {
-        offset: 10,
+        page: 10,
         limit: 10
       },
       {}
@@ -69,35 +74,36 @@ describe('GET /users', () => {
 
   describe('Test token validation', () => {
     test('Create user, and ask users list with correct token', () =>
-      request(app)
-        .post('/users')
-        .send({
-          first_name: 'fn',
-          last_name: 'ln',
-          email: 'prueba@wolox.com.ar',
-          password: 'password'
-        })
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory.create('user', {
+            firstName,
+            lastName,
+            email: 'pruebaToken@wolox.com.ar',
+            password: pass
+          })
+        )
         .then(() =>
           request(app)
             .post('/users/sessions')
             .send({
-              email: 'prueba@wolox.com.ar',
-              password: 'password'
+              email: 'pruebaToken@wolox.com.ar',
+              password: correctPassword
             })
         )
         .then(response =>
           request(app)
             .get('/users')
-            .query({
+            .send({
               token: response.text,
-              offset: 0,
+              page: 1,
               limit: 10
             })
-            .send()
         )
         .then(response => {
-          expect(JSON.parse(response.text).rows.length).toBeGreaterThan(0);
-          expect(response.status).toBe(200);
+          expect(response.body.length).toBe(1);
+          expect(response.body[0].email).toBe('pruebaToken@wolox.com.ar');
+          expect(response.status);
         }));
   });
 });

@@ -1,5 +1,5 @@
-const { validationError } = require('../errors'),
-  logger = require('../logger'),
+const { validationError } = require('../../errors'),
+  logger = require('../../logger'),
   emailDomain = '@wolox.com.ar',
   minPasswordLength = 8,
   alphanumericRegex = /^[0-9a-zA-Z]+$/;
@@ -35,16 +35,16 @@ exports.checkValidName = (req, res, next) => {
 };
 
 exports.checkValidOffsetAndLimit = (req, res, next) => {
-  const { offset, limit } = req.query;
-  if (!offset || !limit || !(parseInt(offset) >= 0) || !(parseInt(limit) >= 0)) {
-    return next(validationError('offset and limit must be positive integers'));
+  const { page, limit } = req.body;
+  if (!page || !limit || !(page > 0) || !(limit >= 0)) {
+    return next(validationError('page and limit must be positive integers'));
   }
-  logger.info('offset and limit correctly validated');
+  logger.info('page and limit correctly validated');
   return next();
 };
 
 exports.checkNotNullToken = (req, res, next) => {
-  if (req.query.token === null) {
+  if (!req.body.token) {
     return next(validationError('Null token'));
   }
   logger.info('Token not null');
