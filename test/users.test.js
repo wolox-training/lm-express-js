@@ -1,27 +1,23 @@
 const request = require('supertest'),
   app = require('../app.js'),
-  validationErrorStatus = 401,
-  firstName = 'fn1',
-  lastName = 'ln1',
-  correctPassword = 'password',
-  correctEmail = 'email@wolox.com.ar';
+  validationErrorStatus = 401;
 
 describe('GET /users', () => {
   describe('Test invalid inputs', () => {
-    test('Test invalid offset', () => {
+    test('Test invalid offset', () =>
       request(app)
         .get('/users')
-        .send({
+        .query({
           token: 'token',
           offset: -5,
           limit: 10
         })
+        .send()
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
-        });
-    });
+        }));
 
-    test('Test invalid limit', () => {
+    test('Test invalid limit', () =>
       request(app)
         .get('/users')
         .send({
@@ -31,10 +27,9 @@ describe('GET /users', () => {
         })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
-        });
-    });
+        }));
 
-    test('Test invalid token', () => {
+    test('Test invalid token', () =>
       request(app)
         .get('/users')
         .send({
@@ -44,23 +39,22 @@ describe('GET /users', () => {
         })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
-        });
-    });
+        }));
   });
 
-  /* describe('Test missing parameters', () => {
+  describe('Test missing parameters', () => {
     test.each([
-      {
-        offset: 10,
-        limit: -5
-      },
-      {
-        token: 'token',
-        limit: -5
-      },
       {
         token: 'token',
         offset: 10
+      },
+      {
+        token: 'token',
+        limit: 10
+      },
+      {
+        offset: 10,
+        limit: 10
       },
       {}
     ])('Test missing parameter with body = %p', body =>
@@ -71,38 +65,38 @@ describe('GET /users', () => {
           expect(response.status).toBe(validationErrorStatus);
         })
     );
-  });*/
-  describe('Test valid token', () => {
-    test('Create user and list users with valid token', () => {
+  });
+
+  describe('Test token validation', () => {
+    test('Create user, and ask users list with correct token', () =>
       request(app)
         .post('/users')
         .send({
-          first_name: firstName,
-          last_name: lastName,
-          email: correctEmail,
-          password: correctPassword
+          first_name: 'fn',
+          last_name: 'ln',
+          email: 'prueba@wolox.com.ar',
+          password: 'password'
         })
         .then(() =>
           request(app)
             .post('/users/sessions')
             .send({
-              email: correctEmail,
-              password: correctPassword
+              email: 'prueba@wolox.com.ar',
+              password: 'password'
             })
         )
-        .then(response => {
+        .then(response =>
           request(app)
             .get('/users')
-            .send({
-              token: response.body.token,
-              offset: 10,
+            .query({
+              token: response.text,
+              offset: 0,
               limit: 10
             })
-            .then(response2 => {
-              expect(response2.status).toBe(200);
-              console.log(response2);
-            });
-        });
-    });
+            .send()
+        )
+        .then(response => {
+          expect(response.status).toBe(200);
+        }));
   });
 });

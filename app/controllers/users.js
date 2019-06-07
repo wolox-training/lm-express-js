@@ -34,7 +34,7 @@ exports.signIn = (req, res, next) => {
     .then(foundUserPassword => comparePasswords(password, foundUserPassword))
     .then(result => {
       if (result) {
-        res.status(200).send({ token: createToken(email) });
+        res.status(200).send(createToken(email));
       } else {
         throw validationError('Password does not match with the email');
       }
@@ -44,7 +44,6 @@ exports.signIn = (req, res, next) => {
 
 exports.listUsers = (req, res, next) => {
   const { token, offset, limit } = req.query;
-  logger.info("Validating user's permissions");
   return validateToken(token)
     .then(validated => {
       if (validated) {

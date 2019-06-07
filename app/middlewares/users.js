@@ -34,5 +34,19 @@ exports.checkValidName = (req, res, next) => {
   return next();
 };
 
-exports.checkValidOffsetAndLimit = (offset, limit) => offset && limit && offset > 0 && limit > 0;
-exports.checkNotNullToken = token => token !== null;
+exports.checkValidOffsetAndLimit = (req, res, next) => {
+  const { offset, limit } = req.query;
+  if (!offset || !limit || !(parseInt(offset) >= 0) || !(parseInt(limit) >= 0)) {
+    return next(validationError('offset and limit must be positive integers'));
+  }
+  logger.info('offset and limit correctly validated');
+  return next();
+};
+
+exports.checkNotNullToken = (req, res, next) => {
+  if (req.query.token === null) {
+    return next(validationError('Null token'));
+  }
+  logger.info('Token not null');
+  return next();
+};
