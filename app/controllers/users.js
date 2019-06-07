@@ -34,10 +34,21 @@ exports.signIn = (req, res, next) => {
     .then(foundUserPassword => comparePasswords(password, foundUserPassword))
     .then(result => {
       if (result) {
-        res.status(200).send({ token: createToken(email) });
+        res.status(200).send(createToken(email));
       } else {
         throw validationError('Password does not match with the email');
       }
+    })
+    .catch(next);
+};
+
+exports.listUsers = (req, res, next) => {
+  const { page, limit } = req.body,
+    offset = limit * (page - 1);
+
+  return User.getUsers(offset, limit)
+    .then(({ users: foundUsers }) => {
+      res.status(200).send(foundUsers);
     })
     .catch(next);
 };

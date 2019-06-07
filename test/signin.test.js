@@ -115,7 +115,7 @@ describe('POST /susers/sessions', () => {
             })
             .then(response => {
               expect(response.status).toBe(200);
-              expect(response.body.token.length).toBeGreaterThan(0);
+              expect(response.text.length).toBeGreaterThan(0);
             })
         );
     });

@@ -1,5 +1,5 @@
-const { validationError } = require('../errors'),
-  logger = require('../logger'),
+const { validationError } = require('../../errors'),
+  logger = require('../../logger'),
   emailDomain = '@wolox.com.ar',
   minPasswordLength = 8,
   alphanumericRegex = /^[0-9a-zA-Z]+$/;
@@ -31,5 +31,22 @@ exports.checkValidName = (req, res, next) => {
     return next(validationError('Missing parameters. firstName and lastName are required'));
   }
   logger.info('Name correctly validated');
+  return next();
+};
+
+exports.checkValidOffsetAndLimit = (req, res, next) => {
+  const { page, limit } = req.body;
+  if (!page || !limit || !(page > 0) || !(limit >= 0)) {
+    return next(validationError('page and limit must be positive integers'));
+  }
+  logger.info('page and limit correctly validated');
+  return next();
+};
+
+exports.checkNotNullToken = (req, res, next) => {
+  if (!req.body.token) {
+    return next(validationError('Null token'));
+  }
+  logger.info('Token not null');
   return next();
 };

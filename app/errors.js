@@ -17,3 +17,6 @@ exports.hashError = message => internalError(message, exports.HASH_ERROR);
 
 exports.VALIDATION_ERROR = 'validation_error';
 exports.validationError = message => internalError(message, exports.VALIDATION_ERROR);
+
+exports.TOKEN_ERROR = 'token_error';
+exports.tokenError = message => internalError(message, exports.TOKEN_ERROR);
