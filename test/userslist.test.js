@@ -96,6 +96,7 @@ describe('GET /users', () => {
             .send()
         )
         .then(response => {
+          expect(JSON.parse(response.text).rows.length).toBeGreaterThan(0);
           expect(response.status).toBe(200);
         }));
   });
