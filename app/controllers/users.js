@@ -4,10 +4,37 @@ const { validationError } = require('../errors'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
   { createToken, validateToken } = require('../helpers/token');
 
+/* const signUpWithAdminCondition = userData => {
+  const { firstName, lastName, email, password, isAdmin } = userData;
+  if (isAdmin) {
+    //
+  } else {
+    logger.info(`Creating user ${firstName}`);
+
+    return hashPassword(password)
+      .then(hash => User.createUser(firstName, lastName, email, hash))
+      .then(([user, created]) => {
+        if (created) {
+          res.status(200).send(`User ${user.firstName} created`);
+        } else {
+          throw validationError('Email already used');
+        }
+      });
+  }
+};
+
+exports.signUpAdmin = (req, res, next) => {
+  const { first_name: firstName, last_name: lastName, email, password } = req.body;
+  logger.info(`Creating user ${firstName}`);
+  return signUpWithAdminCondition({ firstName, lastName, email, password, isAdmin: true }).catch(error =>
+    next(error)
+  );
+};
+*/
+
 exports.signUp = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
   logger.info(`Creating user ${firstName}`);
-
   return hashPassword(password)
     .then(hash => User.createUser(firstName, lastName, email, hash))
     .then(([user, created]) => {
@@ -17,9 +44,8 @@ exports.signUp = (req, res, next) => {
         throw validationError('Email already used');
       }
     })
-    .catch(next);
+    .catch(error => next(error));
 };
-
 exports.signIn = (req, res, next) => {
   const { email, password } = req.body;
   logger.info(`Signing in - email: ${email}`);

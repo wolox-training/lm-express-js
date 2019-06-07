@@ -40,7 +40,8 @@ module.exports = (sequelize, DataTypes) => {
       defaults: {
         firstName,
         lastName,
-        password
+        password,
+        admin: false
       }
     }).catch(error => databaseError(error.message));
 
@@ -51,6 +52,17 @@ module.exports = (sequelize, DataTypes) => {
     User.findAndCountAll({ attributes: ['firstName', 'lastName', 'email'], offset, limit }).catch(error =>
       databaseError(error.message)
     );
+
+  User.createUserAdmin = (firstName, lastName, email, password) =>
+    User.findOrCreate({
+      where: { email },
+      defaults: {
+        firstName,
+        lastName,
+        password,
+        admin: true
+      }
+    }).catch(error => databaseError(error.message));
   /* User.associate = function(models) {
     // associations can be defined here
   };*/
