@@ -2,7 +2,7 @@ const { validationError } = require('../errors'),
   User = require('../models').user,
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
-  { createToken, validateToken } = require('../helpers/token');
+  { createToken } = require('../helpers/token');
 
 exports.signUp = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
@@ -43,19 +43,12 @@ exports.signIn = (req, res, next) => {
 };
 
 exports.listUsers = (req, res, next) => {
-  const { token, offset, limit } = req.query;
-  return validateToken(token)
-    .then(validated => {
-      if (validated) {
-        logger.info('User validated.\nGetting all users for listing them');
-        User.getUsers(offset, limit)
-          .then(foundUsers => {
-            res.status(200).send(foundUsers);
-          })
-          .catch(next);
-      } else {
-        throw validationError("User doesn't have permissions to request users list");
-      }
+  const { page, limit } = req.body,
+    offset = limit * (page - 1);
+
+  return User.getUsers(offset, limit)
+    .then(({ users: foundUsers }) => {
+      res.status(200).send(foundUsers);
     })
     .catch(next);
 };
