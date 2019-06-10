@@ -5,10 +5,13 @@ const request = require('supertest'),
   correctlyCreatedStatus = 200,
   User = require('../app/models').user,
   { factory } = require('factory-girl'),
+  { hashPassword } = require('../app/helpers/hasher'),
   firstName = 'fn',
   lastName = 'ln',
   correctPassword = 'password',
-  correctEmail = 'email@wolox.com.ar';
+  correctEmail = 'email@wolox.com.ar',
+  correctAdminEmail = 'emailAdmin@wolox.com.ar',
+  badToken = 'token';
 
 describe('POST /admin/users', () => {
   describe('Test invalid password', () => {
@@ -19,7 +22,8 @@ describe('POST /admin/users', () => {
           first_name: firstName,
           last_name: lastName,
           email: correctEmail,
-          password: 'pass'
+          password: 'pass',
+          token: badToken
         })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
@@ -32,7 +36,8 @@ describe('POST /admin/users', () => {
           first_name: firstName,
           last_name: lastName,
           email: correctEmail,
-          password: 'passwo..rd'
+          password: 'passwo..rd',
+          token: badToken
         })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
@@ -47,7 +52,8 @@ describe('POST /admin/users', () => {
           first_name: firstName,
           last_name: lastName,
           email: 'email@email.com.ar',
-          password: correctPassword
+          password: correctPassword,
+          token: badToken
         })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
@@ -63,27 +69,7 @@ describe('POST /admin/users', () => {
         password: buildOptions.password,
         isAdmin: false
       }));
-      return factory
-        .create('userNotAdmin', { firstName, lastName, email: correctEmail, password: correctPassword })
-        .then(() =>
-          request(app)
-            .post('/admin/users')
-            .send({
-              first_name: firstName,
-              last_name: lastName,
-              email: correctEmail,
-              password: correctPassword
-            })
-        )
-        .then(response => {
-          expect(response.status).toBe(correctlyUpdatedStatus);
-          return User.findOne({ where: { email: correctEmail } }).then(foundUser => {
-            expect(foundUser.isAdmin).toBe(true);
-          });
-        });
-    });
 
-    test('Create admin user and check permissions after post /admin/users', () => {
       factory.define('userAdmin', User, buildOptions => ({
         first_name: buildOptions.firstName,
         last_name: buildOptions.lastName,
@@ -91,16 +77,43 @@ describe('POST /admin/users', () => {
         password: buildOptions.password,
         isAdmin: true
       }));
-      return factory
-        .create('userAdmin', { firstName, lastName, email: correctEmail, password: correctPassword })
+
+      return hashPassword(correctPassword)
+        .then(pass =>
+          factory.create('userNotAdmin', {
+            firstName,
+            lastName,
+            email: correctEmail,
+            password: pass
+          })
+        )
         .then(() =>
+          hashPassword(correctPassword).then(pass =>
+            factory.create('userAdmin', {
+              firstName,
+              lastName,
+              email: correctAdminEmail,
+              password: pass
+            })
+          )
+        )
+        .then(() =>
+          request(app)
+            .post('/users/sessions')
+            .send({
+              email: correctAdminEmail,
+              password: correctPassword
+            })
+        )
+        .then(response =>
           request(app)
             .post('/admin/users')
             .send({
               first_name: firstName,
               last_name: lastName,
               email: correctEmail,
-              password: correctPassword
+              password: correctPassword,
+              token: response.text
             })
         )
         .then(response => {
@@ -110,21 +123,87 @@ describe('POST /admin/users', () => {
           });
         });
     });
+
+    test('Create admin user and check permissions after post /admin/users', () =>
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory.create('userAdmin', {
+            firstName,
+            lastName,
+            email: correctEmail,
+            password: pass
+          })
+        )
+        .then(() =>
+          hashPassword(correctPassword).then(pass =>
+            factory.create('userAdmin', {
+              firstName,
+              lastName,
+              email: correctAdminEmail,
+              password: pass
+            })
+          )
+        )
+        .then(() =>
+          request(app)
+            .post('/users/sessions')
+            .send({
+              email: correctAdminEmail,
+              password: correctPassword
+            })
+        )
+        .then(response =>
+          request(app)
+            .post('/admin/users')
+            .send({
+              first_name: firstName,
+              last_name: lastName,
+              email: correctEmail,
+              password: correctPassword,
+              token: response.text
+            })
+        )
+        .then(response => {
+          expect(response.status).toBe(correctlyUpdatedStatus);
+          return User.findOne({ where: { email: correctEmail } }).then(foundUser => {
+            expect(foundUser.isAdmin).toBe(true);
+          });
+        }));
   });
 
   describe('Test create user admin', () => {
     test('Create user admin with new email', () =>
-      request(app)
-        .post('/admin/users')
-        .send({
-          first_name: firstName,
-          last_name: lastName,
-          email: correctEmail,
-          password: correctPassword
-        })
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory.create('userAdmin', {
+            firstName,
+            lastName,
+            email: correctAdminEmail,
+            password: pass
+          })
+        )
+        .then(() =>
+          request(app)
+            .post('/users/sessions')
+            .send({
+              email: correctAdminEmail,
+              password: correctPassword
+            })
+        )
+        .then(response =>
+          request(app)
+            .post('/admin/users')
+            .send({
+              first_name: firstName,
+              last_name: lastName,
+              email: correctEmail,
+              password: correctPassword,
+              token: response.text
+            })
+        )
         .then(response => {
           expect(response.status).toBe(correctlyCreatedStatus);
-          User.findOne({ where: { email: correctEmail } }).then(foundUser => {
+          return User.findOne({ where: { email: correctEmail } }).then(foundUser => {
             expect(foundUser.isAdmin).toBe(true);
           });
         }));
