@@ -1,4 +1,7 @@
-const { requestAlbums, requestAlbumPhotos } = require('../services/typicode');
+const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
+  { getEmailFromToken } = require('../helpers/token'),
+  User = require('../models').user,
+  logger = require('../../logger');
 
 exports.getAlbums = (req, res, next) => {
   requestAlbums()
@@ -17,9 +20,14 @@ exports.getAlbumPhotos = (req, res, next) => {
     .catch(next);
 };
 
-exports.buyAlbum = () => {
-  // I have the albumId
-  // const albumId = parseInt(req.params.id);
-  // token->email->userId
+exports.buyAlbum = (req, res, next) => {
+  const albumId = parseInt(req.params.id);
+  logger.info(`Buying album with id ${albumId}`);
+
+  getEmailFromToken(req.body.token)
+    .then(email => User.findUserByEmail(email))
+    .then(foundUser => res.status(200).send(`userId: ${foundUser.id} - albumId: ${albumId}`))
+    .catch(error => next(error));
+
   // If userId-albumId doesn't exists in albums db, add it. Otherwise throw and axception
 };

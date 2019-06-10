@@ -1,6 +1,7 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
-  const albums = sequelize.define(
+  const Album = sequelize.define(
     'albums',
     {
       id: {
@@ -23,5 +24,5 @@ module.exports = (sequelize, DataTypes) => {
   /* albums.associate = function(models) {
     // associations can be defined here
   };*/
-  return albums;
+  return Album;
 };

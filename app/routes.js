@@ -22,6 +22,5 @@ exports.init = app => {
     [usersValidations.checkValidName, usersValidations.checkValidEmailAndPassword, validateAdminToken],
     signUpAdmin
   );
-
   app.post('/albums/:id', [validateId, validateToken], buyAlbum);
 };
