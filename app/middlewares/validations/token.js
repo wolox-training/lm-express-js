@@ -4,7 +4,7 @@ const jsrasign = require('jsrsasign'),
   logger = require('../../logger'),
   User = require('../../models').user;
 
-const splitAndParseToken = token =>
+const getEmailFromToken = token =>
   new Promise(resolve => {
     resolve(jsrasign.b64toutf8(token.split('.')[1]));
   }).then(jsonString => new Promise(resolve => resolve(JSON.parse(jsonString).sub)));
@@ -22,7 +22,7 @@ const resolveValidation = (validated, next) => {
 };
 
 exports.validateToken = (req, res, next) =>
-  splitAndParseToken(req.body.token)
+  getEmailFromToken(req.body.token)
     .then(email => validateWithEmail(req.body.token, email))
     .then(validated => resolveValidation(validated, next))
     .catch(error => {
@@ -30,7 +30,7 @@ exports.validateToken = (req, res, next) =>
     });
 
 exports.validateAdminToken = (req, res, next) => {
-  splitAndParseToken(req.body.token)
+  getEmailFromToken(req.body.token)
     .then(email => User.findOne({ where: { email, isAdmin: true } }))
     .then(foundUser => validateWithEmail(req.body.token, foundUser.email))
     .then(validated => resolveValidation(validated, next))

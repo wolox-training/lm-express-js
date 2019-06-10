@@ -3,7 +3,8 @@ const { getAlbums, getAlbumPhotos, buyAlbum } = require('./controllers/albums'),
   { healthCheck } = require('./controllers/healthCheck'),
   { signUp, signIn, listUsers, signUpAdmin } = require('./controllers/users'),
   usersValidations = require('../app/middlewares/validations/users'),
-  { validateToken, validateAdminToken } = require('../app/middlewares/validations/token');
+  { validateToken, validateAdminToken } = require('../app/middlewares/validations/token'),
+  { validateId } = require('../app/middlewares/validations/albums');
 
 exports.init = app => {
   app.get('/health', healthCheck);
@@ -22,5 +23,5 @@ exports.init = app => {
     signUpAdmin
   );
 
-  app.post('/albums/:id', [validateToken], buyAlbum);
+  app.post('/albums/:id', [validateId, validateToken], buyAlbum);
 };

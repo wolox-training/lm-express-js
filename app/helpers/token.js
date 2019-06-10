@@ -9,3 +9,8 @@ exports.createToken = sub => {
   payload.iat = payload.nbf;
   return jsrasign.jws.JWS.sign(config.algorithm, header, payload, config.pass);
 };
+
+exports.getEmailFromToken = token =>
+  new Promise(resolve => {
+    resolve(jsrasign.b64toutf8(token.split('.')[1]));
+  }).then(jsonString => new Promise(resolve => resolve(JSON.parse(jsonString).sub)));

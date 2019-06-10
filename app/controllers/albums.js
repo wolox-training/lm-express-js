@@ -19,6 +19,7 @@ exports.getAlbumPhotos = (req, res, next) => {
 
 exports.buyAlbum = () => {
   // I have the albumId
+  // const albumId = parseInt(req.params.id);
   // token->email->userId
   // If userId-albumId doesn't exists in albums db, add it. Otherwise throw and axception
 };
