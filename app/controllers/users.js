@@ -22,8 +22,10 @@ exports.signUpAdmin = (req, res, next) => {
       if (created) {
         res.status(200).send(`User ${user.firstName} created as admin`);
       } else {
-        User.makeAdmin(email);
-        logger.info(`User ${firstName} has admin permission now`);
+        User.makeAdmin(email).then(() => {
+          logger.info(`User ${firstName} has admin permissions`);
+          res.status(200).send(`User ${firstName} has admin permissions`);
+        });
       }
     })
     .catch(error => next(error));
@@ -69,6 +71,7 @@ exports.listUsers = (req, res, next) => {
   const { page, limit } = req.body,
     offset = limit * (page - 1);
 
+  logger.info('Listing users');
   return User.getUsers(offset, limit)
     .then(({ users: foundUsers }) => {
       res.status(200).send(foundUsers);

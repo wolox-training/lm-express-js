@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      isAdmin: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
       }
     },
     { underscored: true }
@@ -41,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
         firstName,
         lastName,
         password,
-        admin: false
+        isAdmin: false
       }
     }).catch(error => databaseError(error.message));
 
@@ -60,9 +64,12 @@ module.exports = (sequelize, DataTypes) => {
         firstName,
         lastName,
         password,
-        admin: true
+        isAdmin: true
       }
     }).catch(error => databaseError(error.message));
+
+  User.makeAdmin = email =>
+    User.update({ isAdmin: true }, { where: { email } }).catch(error => databaseError(error.message));
   /* User.associate = function(models) {
     // associations can be defined here
   };*/

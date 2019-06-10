@@ -1,6 +1,7 @@
 const jsrasign = require('jsrsasign'),
   config = require('../../../config').common.token,
-  { validationError, tokenError } = require('../../errors');
+  { validationError, tokenError } = require('../../errors'),
+  logger = require('../../logger');
 
 exports.validateToken = (req, res, next) =>
   new Promise(resolve => {
@@ -12,6 +13,7 @@ exports.validateToken = (req, res, next) =>
     )
     .then(validated => {
       if (validated) {
+        logger.info('Token validated');
         next();
       } else {
         next(validationError("User doesn't have permissions to request users list"));

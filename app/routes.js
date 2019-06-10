@@ -1,7 +1,7 @@
 // const controller = require('./controllers/controller');
 const { getAlbums, getAlbumPhotos } = require('./controllers/albums'),
   { healthCheck } = require('./controllers/healthCheck'),
-  { signUp, signIn, listUsers } = require('./controllers/users'),
+  { signUp, signIn, listUsers, signUpAdmin } = require('./controllers/users'),
   usersValidations = require('../app/middlewares/validations/users'),
   { validateToken } = require('../app/middlewares/validations/token');
 
