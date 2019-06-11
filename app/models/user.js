@@ -32,20 +32,21 @@ module.exports = (sequelize, DataTypes) => {
       },
       isAdmin: {
         type: DataTypes.BOOLEAN,
-        allowNull: true
+        allowNull: true,
+        defaultValue: false
       }
     },
     { underscored: true }
   );
 
-  User.createUser = (firstName, lastName, email, password) =>
+  User.createUser = ({ firstName, lastName, email, password, isAdmin = false }) =>
     User.findOrCreate({
       where: { email },
       defaults: {
         firstName,
         lastName,
         password,
-        isAdmin: false
+        isAdmin
       }
     }).catch(error => databaseError(error.message));
 
@@ -56,17 +57,6 @@ module.exports = (sequelize, DataTypes) => {
     User.findAndCountAll({ attributes: ['firstName', 'lastName', 'email'], offset, limit })
       .then(response => ({ count: response.count, users: response.rows }))
       .catch(error => databaseError(error.message));
-
-  User.createUserAdmin = (firstName, lastName, email, password) =>
-    User.findOrCreate({
-      where: { email },
-      defaults: {
-        firstName,
-        lastName,
-        password,
-        isAdmin: true
-      }
-    }).catch(error => databaseError(error.message));
 
   User.makeAdmin = email =>
     User.update({ isAdmin: true }, { where: { email } }).catch(error => databaseError(error.message));

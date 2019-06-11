@@ -21,16 +21,12 @@ exports.validateToken = (req, res, next) =>
   getEmailFromToken(req.body.token)
     .then(email => validateWithEmail(req.body.token, email))
     .then(validated => resolveValidation(validated, next))
-    .catch(error => {
-      next(tokenError(error));
-    });
+    .catch(error => next(tokenError(error)));
 
 exports.validateAdminToken = (req, res, next) => {
   getEmailFromToken(req.body.token)
     .then(email => User.findOne({ where: { email, isAdmin: true } }))
     .then(foundUser => validateWithEmail(req.body.token, foundUser.email))
     .then(validated => resolveValidation(validated, next))
-    .catch(error => {
-      next(tokenError(error));
-    });
+    .catch(error => next(tokenError(error)));
 };
