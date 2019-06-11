@@ -29,18 +29,24 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      isAdmin: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
       }
     },
     { underscored: true }
   );
 
-  User.createUser = (firstName, lastName, email, password) =>
+  User.createUser = ({ firstName, lastName, email, password, isAdmin = false }) =>
     User.findOrCreate({
       where: { email },
       defaults: {
         firstName,
         lastName,
-        password
+        password,
+        isAdmin
       }
     }).catch(error => databaseError(error.message));
 
@@ -51,6 +57,9 @@ module.exports = (sequelize, DataTypes) => {
     User.findAndCountAll({ attributes: ['firstName', 'lastName', 'email'], offset, limit })
       .then(response => ({ count: response.count, users: response.rows }))
       .catch(error => databaseError(error.message));
+
+  User.makeAdmin = email =>
+    User.update({ isAdmin: true }, { where: { email } }).catch(error => databaseError(error.message));
   /* User.associate = function(models) {
     // associations can be defined here
   };*/

@@ -1,9 +1,9 @@
 // const controller = require('./controllers/controller');
 const { getAlbums, getAlbumPhotos } = require('./controllers/albums'),
   { healthCheck } = require('./controllers/healthCheck'),
-  { signUp, signIn, listUsers } = require('./controllers/users'),
+  { signUp, signIn, listUsers, signUpAdmin } = require('./controllers/users'),
   usersValidations = require('../app/middlewares/validations/users'),
-  { validateToken } = require('../app/middlewares/validations/token');
+  { validateToken, validateAdminToken } = require('../app/middlewares/validations/token');
 
 exports.init = app => {
   app.get('/health', healthCheck);
@@ -16,6 +16,11 @@ exports.init = app => {
   );
   app.post('/users', [usersValidations.checkValidName, usersValidations.checkValidEmailAndPassword], signUp);
   app.post('/users/sessions', [usersValidations.checkValidEmailAndPassword], signIn);
+  app.post(
+    '/admin/users',
+    [usersValidations.checkValidName, usersValidations.checkValidEmailAndPassword, validateAdminToken],
+    signUpAdmin
+  );
   // app.get('/endpoint/get/path', [], controller.methodGET);
   // app.put('/endpoint/put/path', [], controller.methodPUT);
   // app.post('/endpoint/post/path', [], controller.methodPOST);
