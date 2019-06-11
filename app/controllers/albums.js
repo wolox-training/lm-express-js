@@ -1,7 +1,9 @@
 const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
   { getEmailFromToken } = require('../helpers/token'),
   User = require('../models').user,
-  logger = require('../../logger');
+  logger = require('../logger'),
+  Album = require('../models/album'),
+  { validationError } = require('../errors');
 
 exports.getAlbums = (req, res, next) => {
   requestAlbums()
@@ -26,8 +28,20 @@ exports.buyAlbum = (req, res, next) => {
 
   getEmailFromToken(req.body.token)
     .then(email => User.findUserByEmail(email))
-    .then(foundUser => res.status(200).send(`userId: ${foundUser.id} - albumId: ${albumId}`))
-    .catch(error => next(error));
-
-  // If userId-albumId doesn't exists in albums db, add it. Otherwise throw and axception
+    .then(foundUser => {
+      if (foundUser) {
+        Album.bougthAlbum(foundUser.ID, albumId);
+      } else {
+        throw validationError('Token does not match with any user');
+      }
+    })
+    .then(([bought, created]) => {
+      if (created) {
+        logger.info(`Album ${albumId} bougth`);
+        res.status(200).send(`userId: ${bought.userId} bought albumId: ${albumId}`);
+      } else {
+        throw validationError('User already bought that album');
+      }
+    })
+    .catch(next);
 };

@@ -22,3 +22,10 @@ exports.requestAlbumPhotos = albumId => {
     throw apiError(error.message);
   });
 };
+
+exports.getAlbumById = albumId => {
+  logger.info(`Requesting album with id ${albumId}`);
+  return request(options(`${typicodePath}/albums/${albumId}`)).catch(error => {
+    throw apiError(error.message);
+  });
+};

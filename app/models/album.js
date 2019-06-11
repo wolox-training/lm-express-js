@@ -1,5 +1,5 @@
 'use strict';
-
+const { databaseError } = require('../errors');
 module.exports = (sequelize, DataTypes) => {
   const Album = sequelize.define(
     'albums',
@@ -21,6 +21,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
+
+  Album.bougthAlbum = (userId, albumId) =>
+    Album.findOrCreate({
+      where: { userId, albumId }
+    }).catch(error => databaseError(error.message));
+
   /* albums.associate = function(models) {
     // associations can be defined here
   };*/

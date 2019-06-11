@@ -2,12 +2,8 @@ const jsrasign = require('jsrsasign'),
   config = require('../../../config').common.token,
   { validationError, tokenError } = require('../../errors'),
   logger = require('../../logger'),
-  User = require('../../models').user;
-
-const getEmailFromToken = token =>
-  new Promise(resolve => {
-    resolve(jsrasign.b64toutf8(token.split('.')[1]));
-  }).then(jsonString => new Promise(resolve => resolve(JSON.parse(jsonString).sub)));
+  User = require('../../models').user,
+  { getEmailFromToken } = require('../../helpers/token');
 
 const validateWithEmail = (token, email) =>
   jsrasign.jws.JWS.verifyJWT(token, config.pass, { alg: [config.algorithm], sub: [email] });
