@@ -58,6 +58,7 @@
     "bcrypt": "^3.0.6",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
+    "chance": "^1.0.18",
     "express": "^4.16.2",
     "factory-girl": "^5.0.4",
     "jsrsasign": "^8.0.12",

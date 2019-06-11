@@ -4,20 +4,11 @@ const { validationError } = require('../errors'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
   { createToken } = require('../helpers/token');
 
-const signUpWithAdminCondition = userData => {
-  const { firstName, lastName, email, password, isAdmin } = userData;
-  if (isAdmin) {
-    logger.info(`Creating user ${firstName} as admin`);
-    return hashPassword(password).then(hash => User.createUserAdmin(firstName, lastName, email, hash));
-  }
-  logger.info(`Creating user ${firstName}`);
-  return hashPassword(password).then(hash => User.createUser(firstName, lastName, email, hash));
-};
-
 exports.signUpAdmin = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
-
-  return signUpWithAdminCondition({ firstName, lastName, email, password, isAdmin: true })
+  logger.info(`Creating user ${firstName} as admin`);
+  return hashPassword(password)
+    .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: true }))
     .then(([user, created]) => {
       if (created) {
         res.status(200).send(`User ${user.firstName} created as admin`);
@@ -28,13 +19,14 @@ exports.signUpAdmin = (req, res, next) => {
         });
       }
     })
-    .catch(error => next(error));
+    .catch(next);
 };
 
 exports.signUp = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
-
-  signUpWithAdminCondition({ firstName, lastName, email, password, isAdmin: false })
+  logger.info(`Creating user ${firstName}`);
+  return hashPassword(password)
+    .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: false }))
     .then(([user, created]) => {
       if (created) {
         res.status(200).send(`User ${user.firstName} created`);
@@ -42,7 +34,7 @@ exports.signUp = (req, res, next) => {
         throw validationError('Email already used');
       }
     })
-    .catch(error => next(error));
+    .catch(next);
 };
 
 exports.signIn = (req, res, next) => {
