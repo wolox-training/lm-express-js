@@ -17,8 +17,6 @@ describe('POST /admin/users', () => {
   beforeEach(() =>
     hashPassword(correctPassword).then(pass =>
       factory.create('userAdmin', {
-        firstName,
-        lastName,
         email: correctAdminEmail,
         password: pass
       })
@@ -76,8 +74,6 @@ describe('POST /admin/users', () => {
       hashPassword(correctPassword)
         .then(pass =>
           factory.create('userNotAdmin', {
-            firstName,
-            lastName,
             email: correctEmail,
             password: pass
           })
