@@ -2,7 +2,7 @@ const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
   { getEmailFromToken } = require('../helpers/token'),
   User = require('../models').user,
   logger = require('../logger'),
-  Purchase = require('../models/purchase'),
+  Purchase = require('../models').purchases,
   { validationError } = require('../errors');
 
 exports.getAlbums = (req, res, next) => {
@@ -30,10 +30,9 @@ exports.buyAlbum = (req, res, next) => {
     .then(email => User.findUserByEmail(email))
     .then(foundUser => {
       if (foundUser) {
-        Purchase.bougthAlbum(foundUser.ID, albumId);
-      } else {
-        throw validationError('Token does not match with any user');
+        return Purchase.buyAlbumWithUserId(foundUser.ID, albumId);
       }
+      throw validationError('Token does not match with any user');
     })
     .then(([bought, created]) => {
       if (created) {

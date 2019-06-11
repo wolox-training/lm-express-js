@@ -3,10 +3,10 @@ const { validationError } = require('../../errors'),
   { getAlbumById } = require('../../services/typicode');
 
 exports.validateId = (req, res, next) => {
-  const albumId = parseInt(req.params.id);
-  if (albumId < 1) {
+  if (isNaN(req.params.id) || req.params.id < 1) {
     return next(validationError('album id must be a positive integer'));
   }
+  const albumId = parseInt(req.params.id);
 
   return getAlbumById(albumId)
     .then(() => {

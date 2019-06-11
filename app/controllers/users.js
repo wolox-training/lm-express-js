@@ -40,7 +40,6 @@ exports.signUp = (req, res, next) => {
 exports.signIn = (req, res, next) => {
   const { email, password } = req.body;
   logger.info(`Signing in - email: ${email}`);
-
   return User.findUserByEmail(email)
     .then(foundUser => {
       if (foundUser) {

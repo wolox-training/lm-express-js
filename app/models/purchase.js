@@ -1,5 +1,6 @@
 'use strict';
 const { databaseError } = require('../errors');
+
 module.exports = (sequelize, DataTypes) => {
   const Purchase = sequelize.define(
     'purchases',
@@ -19,14 +20,16 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       }
     },
-    {}
+    { underscored: true }
   );
 
-  Purchase.bougthAlbum = (userId, albumId) =>
+  Purchase.buyAlbumWithUserId = (userId, albumId) =>
     Purchase.findOrCreate({
       where: { userId, albumId }
     }).catch(error => databaseError(error.message));
 
+  Purchase.findPurchase = (userId, albumId) =>
+    Purchase.findOne({ where: { userId, albumId } }).catch(error => databaseError(error.message));
   /* albums.associate = function(models) {
     // associations can be defined here
   };*/
