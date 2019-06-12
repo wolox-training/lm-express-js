@@ -2,12 +2,21 @@ const { validationError } = require('../errors'),
   User = require('../models').user,
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
-  { createToken } = require('../helpers/token');
+  { createToken } = require('../helpers/token'),
+  { getEmailFromToken } = require('../helpers/token');
 
 exports.signUpAdmin = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
   logger.info(`Creating user ${firstName} as admin`);
-  return hashPassword(password)
+
+  return getEmailFromToken(req.body.token)
+    .then(adminEmail => User.findUserByEmail(adminEmail))
+    .then(foundAdminUser => {
+      if (foundAdminUser.isAdmin) {
+        return hashPassword(password);
+      }
+      throw validationError('User must have admin permissions to sign up an admin user');
+    })
     .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: true }))
     .then(([user, created]) => {
       if (created) {
