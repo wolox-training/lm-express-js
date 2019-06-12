@@ -1,4 +1,4 @@
-const { validationError } = require('../errors'),
+const { validationError, permissionError } = require('../errors'),
   User = require('../models').user,
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
@@ -15,7 +15,7 @@ exports.signUpAdmin = (req, res, next) => {
       if (foundAdminUser.isAdmin) {
         return hashPassword(password);
       }
-      throw validationError('User must have admin permissions to sign up an admin user');
+      throw permissionError('Admin permissions are required');
     })
     .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: true }))
     .then(([user, created]) => {

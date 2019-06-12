@@ -3,7 +3,7 @@ const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
   User = require('../models').user,
   logger = require('../logger'),
   Purchase = require('../models').purchase,
-  { validationError } = require('../errors');
+  { validationError, permissionError } = require('../errors');
 
 exports.getAlbums = (req, res, next) => {
   requestAlbums()
@@ -43,3 +43,19 @@ exports.buyAlbum = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.listAlbums = (req, res, next) =>
+  getEmailFromToken(req.body.token)
+    .then(applicantEmail => User.findUserByEmail(applicantEmail))
+    .then(applicantUser => {
+      if (!applicantUser) {
+        throw validationError('Token does not match with any user');
+      } else if (parseInt(req.params.user_id) === applicantUser.id || applicantUser.isAdmin) {
+        return Purchase.getAlbumsWithUserId(req.params.user_id).then(purchasedAlbums =>
+          res.status(200).send(purchasedAlbums)
+        );
+      } else {
+        throw permissionError('Admin permissions are required');
+      }
+    })
+    .catch(next);

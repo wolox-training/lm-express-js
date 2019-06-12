@@ -51,9 +51,12 @@ exports.checkValidUserId = (req, res, next) => {
   const userId = parseInt(req.params.user_id);
 
   return User.getUserById(userId)
-    .then(() => {
-      logger.info('user_id validated. User exists');
-      return next();
+    .then(foundUser => {
+      if (foundUser) {
+        logger.info('user_id validated. User exists');
+        return next();
+      }
+      return next(validationError(`User with id ${userId} does not exist`));
     })
     .catch(next);
 };

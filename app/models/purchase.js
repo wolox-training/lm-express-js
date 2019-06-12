@@ -1,5 +1,6 @@
 'use strict';
-const { databaseError } = require('../errors');
+const { databaseError } = require('../errors'),
+  { getAlbumById } = require('../services/typicode');
 
 module.exports = (sequelize, DataTypes) => {
   const Purchase = sequelize.define(
@@ -32,6 +33,19 @@ module.exports = (sequelize, DataTypes) => {
 
   Purchase.findPurchase = (userId, albumId) =>
     Purchase.findOne({ where: { userId, albumId } }).catch(error => databaseError(error.message));
+
+  Purchase.getAlbumsWithUserId = userId =>
+    Purchase.findAll({ where: { userId }, attributes: ['albumId'] })
+      .then(foundPurchases =>
+        Promise.all(
+          foundPurchases.map(purchase =>
+            getAlbumById(purchase.albumId).then(album => ({ albumId: album.id, albumName: album.title }))
+          )
+        )
+      )
+
+      .catch(error => databaseError(error.message));
+
   /* albums.associate = function(models) {
     // associations can be defined here
   };*/

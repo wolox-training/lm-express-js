@@ -20,3 +20,6 @@ exports.validationError = message => internalError(message, exports.VALIDATION_E
 
 exports.TOKEN_ERROR = 'token_error';
 exports.tokenError = message => internalError(message, exports.TOKEN_ERROR);
+
+exports.PERMISSION_ERROR = 'permission_error';
+exports.permissionError = message => internalError(message, exports.PERMISSION_ERROR);
