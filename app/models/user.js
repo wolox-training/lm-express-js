@@ -60,6 +60,8 @@ module.exports = (sequelize, DataTypes) => {
 
   User.makeAdmin = email =>
     User.update({ isAdmin: true }, { where: { email } }).catch(error => databaseError(error.message));
+
+  User.getUserById = id => User.findOne({ where: { id } }).catch(error => databaseError(error.message));
   /* User.associate = function(models) {
     // associations can be defined here
   };*/

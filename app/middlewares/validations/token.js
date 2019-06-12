@@ -21,3 +21,11 @@ exports.validateToken = (req, res, next) =>
     .then(email => validateWithEmail(req.body.token, email))
     .then(validated => resolveValidation(validated, next))
     .catch(error => next(tokenError(error)));
+
+exports.checkNotNullToken = (req, res, next) => {
+  if (!req.body.token) {
+    return next(validationError('Null token'));
+  }
+  logger.info('Token not null');
+  return next();
+};

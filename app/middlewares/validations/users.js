@@ -1,6 +1,7 @@
 const { validationError } = require('../../errors'),
   logger = require('../../logger'),
   emailDomain = '@wolox.com.ar',
+  User = require('../../models').user,
   minPasswordLength = 8,
   alphanumericRegex = /^[0-9a-zA-Z]+$/;
 
@@ -43,10 +44,16 @@ exports.checkValidOffsetAndLimit = (req, res, next) => {
   return next();
 };
 
-exports.checkNotNullToken = (req, res, next) => {
-  if (!req.body.token) {
-    return next(validationError('Null token'));
+exports.checkValidUserId = (req, res, next) => {
+  if (isNaN(req.params.user_id) || req.params.user_id < 1) {
+    return next(validationError('user_id must be a positive integer'));
   }
-  logger.info('Token not null');
-  return next();
+  const userId = parseInt(req.params.user_id);
+
+  return User.getUserById(userId)
+    .then(() => {
+      logger.info('user_id validated. User exists');
+      return next();
+    })
+    .catch(next);
 };
