@@ -10,7 +10,7 @@ exports.validateId = (req, res, next) => {
 
   return getAlbumById(albumId)
     .then(() => {
-      logger.info('albumId validated');
+      logger.info('albumId validated. Album exists');
       return next();
     })
     .catch(next);

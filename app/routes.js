@@ -1,4 +1,3 @@
-// const controller = require('./controllers/controller');
 const { getAlbums, getAlbumPhotos, buyAlbum } = require('./controllers/albums'),
   { healthCheck } = require('./controllers/healthCheck'),
   { signUp, signIn, listUsers, signUpAdmin } = require('./controllers/users'),

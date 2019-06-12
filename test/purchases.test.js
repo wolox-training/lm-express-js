@@ -3,7 +3,7 @@ const request = require('supertest'),
   app = require('../app.js'),
   { factory } = require('factory-girl'),
   User = require('../app/models').user,
-  { findPurchase } = require('../app/models/purchase'),
+  Purchase = require('../app/models').purchase,
   { hashPassword } = require('../app/helpers/hasher'),
   validationErrorStatus = 401,
   apiErrorStatus = 502,
@@ -11,7 +11,9 @@ const request = require('supertest'),
   correctlyPurchasedStatus = 200,
   token = 'token',
   correctEmail = 'purchase@wolox.com.ar',
-  correctPassword = 'password';
+  correctPassword = 'password',
+  albumId = 1,
+  userId = 1;
 
 describe('POST /albums/:id', () => {
   describe('Test invalid inputs', () => {
@@ -62,22 +64,22 @@ describe('POST /albums/:id', () => {
   });
 
   describe('Buy an album', () => {
+    beforeEach(() =>
+      hashPassword(correctPassword).then(pass =>
+        factory.create('userNotAdmin', {
+          email: correctEmail,
+          password: pass
+        })
+      )
+    );
+
     test('Buy an album and check db', () =>
-      hashPassword(correctPassword)
-        .then(pass =>
-          factory.create('userNotAdmin', {
-            email: correctEmail,
-            password: pass
-          })
-        )
-        .then(() =>
-          request(app)
-            .post('/users/sessions')
-            .send({
-              email: correctEmail,
-              password: correctPassword
-            })
-        )
+      request(app)
+        .post('/users/sessions')
+        .send({
+          email: correctEmail,
+          password: correctPassword
+        })
         .then(response =>
           request(app)
             .post('/albums/1')
@@ -89,10 +91,39 @@ describe('POST /albums/:id', () => {
           expect(response.status).toBe(correctlyPurchasedStatus);
           return User.findUserByEmail(correctEmail);
         })
-        .then(foundUser => findPurchase(foundUser.id, 1))
+        .then(foundUser => Purchase.findPurchase(foundUser.id, albumId))
         .then(foundPurchase => {
-          expect(foundPurchase);
-          expect(foundPurchase.albumId).toBe(1);
+          expect(foundPurchase.albumId).toBe(albumId);
+        }));
+
+    test('Buy two albums with same user and check db', () =>
+      request(app)
+        .post('/users/sessions')
+        .send({
+          email: correctEmail,
+          password: correctPassword
+        })
+
+        .then(response =>
+          request(app)
+            .post('/albums/1')
+            .send({
+              token: response.text
+            })
+            .then(() =>
+              request(app)
+                .post('/albums/1')
+                .send({
+                  token: response.text
+                })
+            )
+        )
+        .then(response => {
+          expect(response.status).toBe(validationErrorStatus);
+          return Purchase.findAndCountAll({ where: { userId, albumId } });
+        })
+        .then(foundPurchases => {
+          expect(foundPurchases.count).toBe(1);
         }));
   });
 });

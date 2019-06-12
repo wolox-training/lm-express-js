@@ -3,7 +3,7 @@ const { databaseError } = require('../errors');
 
 module.exports = (sequelize, DataTypes) => {
   const Purchase = sequelize.define(
-    'purchases',
+    'purchase',
     {
       id: {
         type: DataTypes.INTEGER,
@@ -13,11 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       userId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        field: 'user_id'
       },
       albumId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        field: 'album_id'
       }
     },
     { underscored: true }
