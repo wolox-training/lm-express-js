@@ -51,5 +51,6 @@ module.exports = (sequelize, DataTypes) => {
 
   Purchase.userHasAlbum = (userId, albumId) =>
     Purchase.findOne({ where: userId, albumId }).catch(error => databaseError(error.message));
+
   return Purchase;
 };
