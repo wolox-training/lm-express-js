@@ -3,6 +3,7 @@ const request = require('supertest'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
   User = require('../app/models').user,
+  { getAlbumById } = require('../app/services/typicode'),
   correctEmail = 'albumslist@wolox.com.ar',
   correctEmail2 = 'albumlists2@wolox.com.ar',
   correctPassword = 'password',
@@ -20,13 +21,20 @@ const buyTwoAlbums = (id1, id2, buyerToken) =>
         .send({ token: buyerToken })
     );
 
-const checkBoughtAlbums = response => {
+const checkBoughtAlbums = (response, id1, id2) => {
   expect(response.status).toBe(200);
   expect(response.body.length).toBe(2);
-  expect(response.body[0].albumId).toBe(1);
-  expect(response.body[1].albumId).toBe(10);
-  expect(response.body[0].albumName.length).toBeGreaterThan(0);
-  expect(response.body[1].albumName.length).toBeGreaterThan(0);
+  expect(response.body[0].albumId).toBe(id1);
+  expect(response.body[1].albumId).toBe(id2);
+  return getAlbumById(id1)
+    .then(album => {
+      expect(response.body[0].albumName).toBe(album.title);
+    })
+    .then(() =>
+      getAlbumById(id2).then(album => {
+        expect(response.body[1].albumName).toBe(album.title);
+      })
+    );
 };
 
 describe('GET /users/:user_id/albums', () => {
@@ -142,7 +150,7 @@ describe('GET /users/:user_id/albums', () => {
         .then(() => requestToken())
         .then(() => User.findUserByEmail(correctEmail))
         .then(user => buyTwoAlbums(1, 10, validToken).then(() => askForAlbums(user.id, validToken)))
-        .then(response => checkBoughtAlbums(response)));
+        .then(response => checkBoughtAlbums(response, 1, 10)));
 
     test('Test buy album and list albums with same not-admin user', () =>
       hashPassword(correctPassword)
@@ -155,7 +163,7 @@ describe('GET /users/:user_id/albums', () => {
         .then(() => requestToken())
         .then(() => User.findUserByEmail(correctEmail))
         .then(user => buyTwoAlbums(1, 10, validToken).then(() => askForAlbums(user.id, validToken)))
-        .then(response => checkBoughtAlbums(response)));
+        .then(response => checkBoughtAlbums(response, 1, 10)));
 
     test('Test buy album and list albums with different not-admin user', () =>
       hashPassword(correctPassword)
@@ -197,6 +205,6 @@ describe('GET /users/:user_id/albums', () => {
         .then(() => requestTokens())
         .then(() => User.findUserByEmail(correctEmail2))
         .then(user => buyTwoAlbums(1, 10, validToken2).then(() => askForAlbums(user.id, validToken1)))
-        .then(response => checkBoughtAlbums(response)));
+        .then(response => checkBoughtAlbums(response, 1, 10)));
   });
 });
