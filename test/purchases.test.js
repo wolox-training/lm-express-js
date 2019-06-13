@@ -64,29 +64,34 @@ describe('POST /albums/:id', () => {
   });
 
   describe('Buy an album', () => {
+    let validToken = '';
     beforeEach(() =>
-      hashPassword(correctPassword).then(pass =>
-        factory.create('userNotAdmin', {
-          email: correctEmail,
-          password: pass
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory.create('userNotAdmin', {
+            email: correctEmail,
+            password: pass
+          })
+        )
+        .then(() =>
+          request(app)
+            .post('/users/sessions')
+            .send({
+              email: correctEmail,
+              password: correctPassword
+            })
+        )
+        .then(response => {
+          validToken = response.text;
         })
-      )
     );
 
     test('Buy an album and check db', () =>
       request(app)
-        .post('/users/sessions')
+        .post('/albums/1')
         .send({
-          email: correctEmail,
-          password: correctPassword
+          token: validToken
         })
-        .then(response =>
-          request(app)
-            .post('/albums/1')
-            .send({
-              token: response.text
-            })
-        )
         .then(response => {
           expect(response.status).toBe(correctlyPurchasedStatus);
           return User.findUserByEmail(correctEmail);
@@ -98,25 +103,16 @@ describe('POST /albums/:id', () => {
 
     test('Buy two albums with same user and check db', () =>
       request(app)
-        .post('/users/sessions')
+        .post('/albums/1')
         .send({
-          email: correctEmail,
-          password: correctPassword
+          token: validToken
         })
-
-        .then(response =>
+        .then(() =>
           request(app)
             .post('/albums/1')
             .send({
-              token: response.text
+              token: validToken
             })
-            .then(() =>
-              request(app)
-                .post('/albums/1')
-                .send({
-                  token: response.text
-                })
-            )
         )
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
