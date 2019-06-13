@@ -2,6 +2,7 @@ const request = require('supertest'),
   app = require('../app.js'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
+  { requestAlbumPhotos } = require('../app/services/typicode'),
   correctEmail = 'albumslist@wolox.com.ar',
   correctPassword = 'password',
   validationErrorStatus = 401;
@@ -38,7 +39,7 @@ describe('GET /users/albums/:id/photos', () => {
         expect(response.status).toBe(validationErrorStatus);
       }));
 
-  test('Test create user, buy albums and list photos', done =>
+  test('Test create user, buy albums and list photos', () =>
     request(app)
       .get('/users/albums/10/photos')
       .send({
@@ -54,7 +55,8 @@ describe('GET /users/albums/:id/photos', () => {
           expect(photos[i].url);
           expect(photos[i].thumbnailUrl);
         }
-        // Check array with Typicode array
-        done();
+        return requestAlbumPhotos(10).then(servicePhotos => {
+          expect(servicePhotos).toEqual(photos);
+        });
       }));
 });
