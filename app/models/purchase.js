@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     { underscored: true }
   );
-  /* purchases.associate = function(models) {
+  /* Purchase.associate = function(models) {
     // associations can be defined here
   };*/
 
