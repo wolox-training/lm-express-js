@@ -1,4 +1,4 @@
-const { getAlbums, getAlbumPhotos, buyAlbum, listAlbums } = require('./controllers/albums'),
+const { getAlbums, getAlbumPhotos, buyAlbum, listAlbums, listAlbumsPhotos } = require('./controllers/albums'),
   { healthCheck } = require('./controllers/healthCheck'),
   { signUp, signIn, listUsers, signUpAdmin } = require('./controllers/users'),
   usersValidations = require('../app/middlewares/validations/users'),
@@ -11,6 +11,7 @@ exports.init = app => {
   app.get('/albums/:id/photos', getAlbumPhotos);
   app.get('/users', [usersValidations.checkValidOffsetAndLimit, checkNotNullToken, validateToken], listUsers);
   app.get('/users/:user_id/albums', [usersValidations.checkValidUserId, validateToken], listAlbums);
+  app.get('/users/albums/:id/photos', [validateAlbumId, validateToken], listAlbumsPhotos);
   app.post('/users', [usersValidations.checkValidName, usersValidations.checkValidEmailAndPassword], signUp);
   app.post('/users/sessions', [usersValidations.checkValidEmailAndPassword], signIn);
   app.post(

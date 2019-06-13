@@ -60,3 +60,21 @@ exports.listAlbums = (req, res, next) =>
       }
     })
     .catch(next);
+
+exports.listAlbumsPhotos = (req, res, next) => {
+  const albumId = parseInt(req.params.id);
+  return getEmailFromToken(req.body.token)
+    .then(email => User.findUserByEmail(email))
+    .then(user =>
+      Purchase.findPurchase(user.id, albumId).then(foundPurchase => {
+        if (foundPurchase) {
+          return requestAlbumPhotos(albumId).then(albumPhotos => {
+            logger.info(`Listing albums photos of album with id ${albumId}`);
+            res.status(200).send(albumPhotos);
+          });
+        }
+        throw validationError(`User with id ${user.id} didn't buy album with id ${albumId}`);
+      })
+    )
+    .catch(next);
+};
