@@ -2,7 +2,6 @@ const request = require('supertest'),
   app = require('../app.js'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
-  { requestAlbumPhotos } = require('../app/services/typicode'),
   correctEmail = 'albumslist@wolox.com.ar',
   correctPassword = 'password',
   validationErrorStatus = 401;
