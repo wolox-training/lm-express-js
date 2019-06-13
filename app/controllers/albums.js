@@ -51,6 +51,7 @@ exports.listAlbums = (req, res, next) =>
       if (!applicantUser) {
         throw validationError('Token does not match with any user');
       } else if (parseInt(req.params.user_id) === applicantUser.id || applicantUser.isAdmin) {
+        logger.info(`Listing albums of user with id ${req.params.user_id}`);
         return Purchase.getAlbumsWithUserId(req.params.user_id).then(purchasedAlbums =>
           res.status(200).send(purchasedAlbums)
         );

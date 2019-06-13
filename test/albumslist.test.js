@@ -2,30 +2,42 @@ const request = require('supertest'),
   app = require('../app.js'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
+  User = require('../app/models').user,
   correctEmail = 'albumslist@wolox.com.ar',
   correctEmail2 = 'albumlists2@wolox.com.ar',
   correctPassword = 'password',
   validationErrorStatus = 401,
+  permissionErrorStatus = 403,
   tokenErrorStatus = 500;
-// Test missing parameters
-// Test invalid inputs
-// Test endpoint unauthenticated
-// Test buy albums and list albums with same user
-// Test buy albums and list albums with different not-admin user
-// Test buy albums and list albums with different admin user
+
+const buyTwoAlbums = (id1, id2, buyerToken) =>
+  request(app)
+    .post(`/albums/${id1}`)
+    .send({ token: buyerToken })
+    .then(() =>
+      request(app)
+        .post(`/albums/${id2}`)
+        .send({ token: buyerToken })
+    );
+
+const checkBoughtAlbums = response => {
+  expect(response.status).toBe(200);
+  expect(response.body.length).toBe(2);
+  expect(response.body[0].albumId).toBe(1);
+  expect(response.body[1].albumId).toBe(10);
+};
 
 describe('GET /users/:user_id/albums', () => {
   describe('Test missing parameters', () => {
-    test('Test missing user_id', () => {
+    test('Test missing user_id', () =>
       request(app)
         .get('/users/ /albums')
         .send({ token: 'token' })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
-        });
-    });
+        }));
 
-    test('Test missing token', () => {
+    test('Test missing token', () =>
       hashPassword(correctPassword)
         .then(pass =>
           factory.create('userNotAdmin', {
@@ -40,35 +52,32 @@ describe('GET /users/:user_id/albums', () => {
         )
         .then(response => {
           expect(response.status).toBe(tokenErrorStatus);
-        });
-    });
+        }));
   });
 
   describe('Test invalid inputs', () => {
-    test('Test send an invalid user_id', () => {
+    test('Test send an invalid user_id', () =>
       request(app)
         .get('/users/pepe/albums')
         .send({ token: 'token' })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
-        });
-    });
-    test('Test send an invalid user_id (id bigger than users amount)', () => {
+        }));
+    test('Test send an invalid user_id (id bigger than users amount)', () =>
       request(app)
         .get('/users/5/albums')
         .send({ token: 'token' })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
-        });
-    });
+        }));
   });
 
   describe('Test endpoint unauthenticated', () => {
-    test('Test request with vali user_id an invalid token', () => {
+    test('Test request with valid user_id an invalid token', () =>
       hashPassword(correctPassword)
         .then(pass =>
           factory.create('userNotAdmin', {
-            email: correctEmail2,
+            email: correctEmail,
             password: pass
           })
         )
@@ -77,10 +86,115 @@ describe('GET /users/:user_id/albums', () => {
             .get('/users/1/albums')
             .send({ token: 'token' })
         )
+
         .then(response => {
           expect(response.status).toBe(tokenErrorStatus);
-        });
-    });
+        }));
   });
-  // PREGUNTAR POR QUÉ TENGO QUE USAR UN MAIL DISTINTO, Y EN LAS PRUEBAS ANTERIORES NO.
+
+  describe('Test buy albums', () => {
+    let validToken = '';
+    let validToken1 = '';
+    let validToken2 = '';
+
+    const askForAlbums = (userId, token) =>
+      request(app)
+        .get(`/users/${userId}/albums`)
+        .send({ token });
+
+    const requestToken = () =>
+      request(app)
+        .post('/users/sessions')
+        .send({
+          email: correctEmail,
+          password: correctPassword
+        })
+        .then(response => (validToken = response.text));
+
+    const requestTokens = () =>
+      request(app)
+        .post('/users/sessions')
+        .send({
+          email: correctEmail,
+          password: correctPassword
+        })
+        .then(response => (validToken1 = response.text))
+        .then(() =>
+          request(app)
+            .post('/users/sessions')
+            .send({
+              email: correctEmail2,
+              password: correctPassword
+            })
+        )
+        .then(response => (validToken2 = response.text));
+
+    test('Test buy album and list albums with same admin user', () =>
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory.create('userAdmin', {
+            email: correctEmail,
+            password: pass
+          })
+        )
+        .then(() => requestToken())
+        .then(() => User.findUserByEmail(correctEmail))
+        .then(user => buyTwoAlbums(1, 10, validToken).then(() => askForAlbums(user.id, validToken)))
+        .then(response => checkBoughtAlbums(response)));
+
+    test('Test buy album and list albums with same not-admin user', () =>
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory.create('userNotAdmin', {
+            email: correctEmail,
+            password: pass
+          })
+        )
+        .then(() => requestToken())
+        .then(() => User.findUserByEmail(correctEmail))
+        .then(user => buyTwoAlbums(1, 10, validToken).then(() => askForAlbums(user.id, validToken)))
+        .then(response => checkBoughtAlbums(response)));
+
+    test('Test buy album and list albums with different not-admin user', () =>
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory
+            .create('userNotAdmin', {
+              email: correctEmail,
+              password: pass
+            })
+            .then(() =>
+              factory.create('userNotAdmin', {
+                email: correctEmail2,
+                password: pass
+              })
+            )
+        )
+        .then(() => requestTokens())
+        .then(() => User.findUserByEmail(correctEmail2))
+        .then(user => buyTwoAlbums(1, 10, validToken2).then(() => askForAlbums(user.id, validToken1)))
+        .then(response => {
+          expect(response.status).toBe(permissionErrorStatus);
+        }));
+
+    test('Test buy album and list albums with different admin user', () =>
+      hashPassword(correctPassword)
+        .then(pass =>
+          factory
+            .create('userAdmin', {
+              email: correctEmail,
+              password: pass
+            })
+            .then(() =>
+              factory.create('userNotAdmin', {
+                email: correctEmail2,
+                password: pass
+              })
+            )
+        )
+        .then(() => requestTokens())
+        .then(() => User.findUserByEmail(correctEmail2))
+        .then(user => buyTwoAlbums(1, 10, validToken2).then(() => askForAlbums(user.id, validToken1)))
+        .then(response => checkBoughtAlbums(response)));
+  });
 });
