@@ -25,6 +25,8 @@ const checkBoughtAlbums = response => {
   expect(response.body.length).toBe(2);
   expect(response.body[0].albumId).toBe(1);
   expect(response.body[1].albumId).toBe(10);
+  expect(response.body[0].albumName.length).toBeGreaterThan(0);
+  expect(response.body[1].albumName.length).toBeGreaterThan(0);
 };
 
 describe('GET /users/:user_id/albums', () => {
