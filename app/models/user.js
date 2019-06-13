@@ -39,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
     { underscored: true }
   );
 
+  /* User.associate = function(models) {
+    // associations can be defined here
+  };*/
+
   User.createUser = ({ firstName, lastName, email, password, isAdmin = false }) =>
     User.findOrCreate({
       where: { email },
@@ -62,8 +66,6 @@ module.exports = (sequelize, DataTypes) => {
     User.update({ isAdmin: true }, { where: { email } }).catch(error => databaseError(error.message));
 
   User.getUserById = id => User.findOne({ where: { id } }).catch(error => databaseError(error.message));
-  /* User.associate = function(models) {
-    // associations can be defined here
-  };*/
+
   return User;
 };

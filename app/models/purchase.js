@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     { underscored: true }
   );
+  /* Purchase.associate = function(models) {
+    // associations can be defined here
+  };*/
 
   Purchase.buyAlbumWithUserId = (userId, albumId) =>
     Purchase.findOrCreate({
@@ -46,8 +49,5 @@ module.exports = (sequelize, DataTypes) => {
 
       .catch(error => databaseError(error.message));
 
-  /* albums.associate = function(models) {
-    // associations can be defined here
-  };*/
   return Purchase;
 };
