@@ -1,5 +1,6 @@
 'use strict';
-const { databaseError } = require('../errors');
+const { databaseError } = require('../errors'),
+  jsrasign = require('jsrsasign');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -69,6 +70,11 @@ module.exports = (sequelize, DataTypes) => {
     User.update({ isAdmin: true }, { where: { email } }).catch(error => databaseError(error.message));
 
   User.getUserById = id => User.findOne({ where: { id } }).catch(error => databaseError(error.message));
+
+  User.invalidateAllSessionsByEmail = email =>
+    User.update({ invalidateTime: jsrasign.jws.IntDate.get('now') }, { where: { email } }).catch(error =>
+      databaseError(error.message)
+    );
 
   return User;
 };

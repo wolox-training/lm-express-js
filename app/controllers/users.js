@@ -78,3 +78,17 @@ exports.listUsers = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.invalidateAll = (req, res, next) =>
+  getEmailFromToken(req.body.token)
+    .then(email => User.findUserByEmail(email))
+    .then(foundUser => {
+      if (foundUser) {
+        // Invalidate tokens
+        User.invalidateAllSessionsByEmail(foundUser.email);
+        res.status(200).send(`Al sessions of user with id ${foundUser.id} have been closed`);
+      } else {
+        throw validationError('Token does not match with any user');
+      }
+    })
+    .catch(next);
