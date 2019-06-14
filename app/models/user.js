@@ -34,6 +34,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: true,
         defaultValue: false
+      },
+      invalidateTime: {
+        type: DataTypes.INTEGER
       }
     },
     { underscored: true }
