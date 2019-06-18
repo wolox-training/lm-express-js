@@ -3,7 +3,7 @@ const request = require('supertest'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
   User = require('../app/models').user,
-  { getAlbumById } = require('../app/services/typicode'),
+  { albumsListMock } = require('./support/mocking'),
   correctEmail = 'albumslist@wolox.com.ar',
   correctEmail2 = 'albumlists2@wolox.com.ar',
   correctPassword = 'password',
@@ -11,8 +11,10 @@ const request = require('supertest'),
   permissionErrorStatus = 403,
   tokenErrorStatus = 500;
 
-const buyTwoAlbums = (id1, id2, buyerToken) =>
-  request(app)
+const buyTwoAlbums = (id1, id2, buyerToken) => {
+  albumsListMock(1);
+  albumsListMock(10);
+  return request(app)
     .post(`/albums/${id1}`)
     .send({ token: buyerToken })
     .then(() =>
@@ -20,21 +22,15 @@ const buyTwoAlbums = (id1, id2, buyerToken) =>
         .post(`/albums/${id2}`)
         .send({ token: buyerToken })
     );
+};
 
 const checkBoughtAlbums = (response, id1, id2) => {
   expect(response.status).toBe(200);
   expect(response.body.length).toBe(2);
   expect(response.body[0].albumId).toBe(id1);
   expect(response.body[1].albumId).toBe(id2);
-  return getAlbumById(id1)
-    .then(album => {
-      expect(response.body[0].albumName).toBe(album.title);
-    })
-    .then(() =>
-      getAlbumById(id2).then(album => {
-        expect(response.body[1].albumName).toBe(album.title);
-      })
-    );
+  expect(response.body[0].albumName).toBe('quidem molestiae enim');
+  expect(response.body[1].albumName).toBe('quidem molestiae enim');
 };
 
 describe('GET /users/:user_id/albums', () => {
@@ -107,10 +103,13 @@ describe('GET /users/:user_id/albums', () => {
     let validToken1 = '';
     let validToken2 = '';
 
-    const askForAlbums = (userId, token) =>
-      request(app)
+    const askForAlbums = (userId, token) => {
+      albumsListMock(1);
+      albumsListMock(10);
+      return request(app)
         .get(`/users/${userId}/albums`)
         .send({ token });
+    };
 
     const requestToken = () =>
       request(app)
