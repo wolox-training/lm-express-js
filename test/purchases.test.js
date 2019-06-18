@@ -7,7 +7,6 @@ const request = require('supertest'),
   { hashPassword } = require('../app/helpers/hasher'),
   validationErrorStatus = 401,
   apiErrorStatus = 502,
-  tokenErrorStatus = 500,
   correctlyPurchasedStatus = 200,
   token = 'token',
   correctEmail = 'purchase@wolox.com.ar',
@@ -49,7 +48,7 @@ describe('POST /albums/:id', () => {
         .post('/albums/1')
         .send({})
         .then(response => {
-          expect(response.status).toBe(tokenErrorStatus);
+          expect(response.status).toBe(validationErrorStatus);
         });
     });
 
@@ -58,14 +57,14 @@ describe('POST /albums/:id', () => {
         .post('/albums/1')
         .send({ token })
         .then(response => {
-          expect(response.status).toBe(tokenErrorStatus);
+          expect(response.status).toBe(validationErrorStatus);
         });
     });
   });
 
   describe('Buy an album', () => {
     let validToken = '';
-    beforeEach(() =>
+    beforeEach(done =>
       hashPassword(correctPassword)
         .then(pass =>
           factory.create('userNotAdmin', {
@@ -83,6 +82,7 @@ describe('POST /albums/:id', () => {
         )
         .then(response => {
           validToken = response.text;
+          done();
         })
     );
 

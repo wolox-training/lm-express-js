@@ -8,8 +8,7 @@ const request = require('supertest'),
   correctEmail2 = 'albumlists2@wolox.com.ar',
   correctPassword = 'password',
   validationErrorStatus = 401,
-  permissionErrorStatus = 403,
-  tokenErrorStatus = 500;
+  permissionErrorStatus = 403;
 
 const buyTwoAlbums = (id1, id2, buyerToken) =>
   request(app)
@@ -61,7 +60,7 @@ describe('GET /users/:user_id/albums', () => {
             .send({})
         )
         .then(response => {
-          expect(response.status).toBe(tokenErrorStatus);
+          expect(response.status).toBe(validationErrorStatus);
         }));
   });
 
@@ -98,7 +97,7 @@ describe('GET /users/:user_id/albums', () => {
         )
 
         .then(response => {
-          expect(response.status).toBe(tokenErrorStatus);
+          expect(response.status).toBe(validationErrorStatus);
         }));
   });
 
