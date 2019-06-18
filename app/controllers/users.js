@@ -79,8 +79,9 @@ exports.listUsers = (req, res, next) => {
     .catch(next);
 };
 
-exports.invalidateAll = (req, res, next) =>
-  getEmailFromToken(req.body.token)
+exports.invalidateAll = (req, res, next) => {
+  logger.info("Closing all user's sessions");
+  return getEmailFromToken(req.body.token)
     .then(email => User.findUserByEmail(email))
     .then(foundUser => {
       if (foundUser) {
@@ -92,3 +93,4 @@ exports.invalidateAll = (req, res, next) =>
       }
     })
     .catch(next);
+};
