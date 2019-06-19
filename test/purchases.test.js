@@ -50,21 +50,11 @@ describe('POST /albums/:id', () => {
         });
     });
 
-    test('Send a null token', () => {
-      albumsListMock(1, albumTitle);
+    test.each([{}, { token }])('Send null and invalid token', body => {
+      albumsListMock(albumId, albumTitle);
       return request(app)
         .post('/albums/1')
-        .send({})
-        .then(response => {
-          expect(response.status).toBe(tokenErrorStatus);
-        });
-    });
-
-    test('Send an invalid token', () => {
-      albumsListMock(1, albumTitle);
-      return request(app)
-        .post('/albums/1')
-        .send({ token })
+        .send(body)
         .then(response => {
           expect(response.status).toBe(tokenErrorStatus);
         });
@@ -91,7 +81,7 @@ describe('POST /albums/:id', () => {
         )
         .then(response => {
           validToken = response.text;
-          albumsListMock(1, albumTitle);
+          albumsListMock(albumId, albumTitle);
         })
     );
 
@@ -117,7 +107,7 @@ describe('POST /albums/:id', () => {
           token: validToken
         })
         .then(() => {
-          albumsListMock(1, albumTitle);
+          albumsListMock(albumId, albumTitle);
           return request(app)
             .post('/albums/1')
             .send({
