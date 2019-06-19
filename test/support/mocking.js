@@ -27,3 +27,30 @@ exports.albumsListMockError = albumId => {
     .get(`/albums/${albumId}`)
     .reply(404, {});
 };
+
+exports.albumsPhotosListMock = albumId => {
+  nock('https://jsonplaceholder.typicode.com')
+    .get(`/photos?albumId=${albumId}`)
+    .reply(200, [
+      {
+        albumId,
+        id: 1,
+        title: 'title1',
+        url: 'url1',
+        thumbnailUrl: 'thumbnailUrl1'
+      },
+      {
+        albumId,
+        id: 2,
+        title: 'title2',
+        url: 'url2',
+        thumbnailUrl: 'thumbnailUrl2'
+      }
+    ]);
+};
+
+exports.albumsPhotosListMockError = albumId => {
+  nock('https://jsonplaceholder.typicode.com')
+    .get(`/photos?albumId=${albumId}`)
+    .reply(404, []);
+};
