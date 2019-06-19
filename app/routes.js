@@ -20,8 +20,5 @@ exports.init = app => {
     signUpAdmin
   );
   app.post('/albums/:id', [validateAlbumId, validateToken], buyAlbum);
-  app.post('/users/sessions/invalidate_all', invalidateAllSessions);
-  // Asignar un tiempo por default a invalidate_time
-  // Cuando se hace el validateToken chequear que no sea anterior al invalidate_tiem
-  // Hacer tests
+  app.post('/users/sessions/invalidate_all', [validateToken], invalidateAllSessions);
 };
