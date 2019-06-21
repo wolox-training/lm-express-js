@@ -13,7 +13,8 @@ exports.config = {
     token: {
       algorithm: 'HS256',
       tokenType: 'JWT',
-      pass: 'c2VjcmV0'
+      pass: 'c2VjcmV0',
+      sessionTime: 60
     }
   }
 };
