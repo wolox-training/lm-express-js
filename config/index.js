@@ -46,7 +46,8 @@ const config = {
     token: {
       algorithm: process.env.TOKEN_ALGORITHM,
       tokenType: process.env.TOKEN_TYPE,
-      pass: process.env.TOKEN_PASS
+      pass: process.env.TOKEN_PASS,
+      sessionTime: process.env.SESSION_TIME
     }
   }
 };

@@ -3,7 +3,7 @@ const { validationError, permissionError } = require('../errors'),
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
   { createToken } = require('../helpers/token'),
-  { getEmailFromToken } = require('../helpers/token');
+  { getEmailFromToken, getExpFromToken } = require('../helpers/token');
 
 exports.signUpAdmin = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
@@ -59,10 +59,12 @@ exports.signIn = (req, res, next) => {
     .then(foundUserPassword => comparePasswords(password, foundUserPassword))
     .then(result => {
       if (result) {
-        res.status(200).send(createToken(email));
-      } else {
-        throw validationError('Password does not match with the email');
+        const token = createToken(email);
+        return getExpFromToken(token).then(sessionTime => {
+          res.status(200).send({ token, sessionTime });
+        });
       }
+      throw validationError('Password does not match with the email');
     })
     .catch(next);
 };

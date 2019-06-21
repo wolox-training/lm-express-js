@@ -33,7 +33,7 @@ describe('POST /users/sessions/invalidate_all', () => {
             password: correctPassword
           })
       )
-      .then(response => (token = response.text))
+      .then(response => ({ token } = response.body))
       .then(() =>
         request(app)
           .post('/users/sessions/invalidate_all')
@@ -67,7 +67,7 @@ describe('POST /users/sessions/invalidate_all', () => {
             request(app)
               .get('/users')
               .send({
-                token: response.text,
+                token: response.body.token,
                 page: 1,
                 limit: 10
               })

@@ -118,7 +118,7 @@ describe('GET /users/:user_id/albums', () => {
           email: correctEmail,
           password: correctPassword
         })
-        .then(response => (validToken = response.text));
+        .then(response => (validToken = response.body.token));
 
     const requestTokens = () =>
       request(app)
@@ -127,7 +127,7 @@ describe('GET /users/:user_id/albums', () => {
           email: correctEmail,
           password: correctPassword
         })
-        .then(response => (validToken1 = response.text))
+        .then(response => (validToken1 = response.body.token))
         .then(() =>
           request(app)
             .post('/users/sessions')
@@ -136,7 +136,7 @@ describe('GET /users/:user_id/albums', () => {
               password: correctPassword
             })
         )
-        .then(response => (validToken2 = response.text));
+        .then(response => (validToken2 = response.body.token));
 
     test('Test buy album and list albums with same admin user', () =>
       hashPassword(correctPassword)
