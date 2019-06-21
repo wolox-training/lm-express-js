@@ -3,19 +3,28 @@ const jsrasign = require('jsrsasign'),
   { validationError, tokenError } = require('../../errors'),
   logger = require('../../logger'),
   { getEmailFromToken, getIatFromToken } = require('../../helpers/token'),
-  User = require('../../models').user;
+  User = require('../../models').user,
+  moment = require('moment');
 
 const validateWithEmail = (token, email) =>
   User.findUserByEmail(email).then(foundUser => {
     if (foundUser) {
       return getIatFromToken(token).then(tokenIat => {
         if (tokenIat > foundUser.invalidateTime) {
-          return jsrasign.jws.JWS.verifyJWT(token, config.pass, { alg: [config.algorithm], sub: [email] });
+          return jsrasign.jws.JWS.verifyJWT(token, config.pass, {
+            alg: [config.algorithm],
+            sub: [email],
+            verifyAt: moment().unix()
+          });
         }
         return false;
       });
     }
-    return jsrasign.jws.JWS.verifyJWT(token, config.pass, { alg: [config.algorithm], sub: [email] });
+    return jsrasign.jws.JWS.verifyJWT(token, config.pass, {
+      alg: [config.algorithm],
+      sub: [email],
+      verifyAt: moment().unix()
+    });
   });
 
 const resolveValidation = (validated, next) => {
