@@ -20,11 +20,7 @@ const validateWithEmail = (token, email) =>
         return false;
       });
     }
-    return jsrasign.jws.JWS.verifyJWT(token, config.pass, {
-      alg: [config.algorithm],
-      sub: [email],
-      verifyAt: moment().unix()
-    });
+    throw validationError('Invalid token. User does not exists');
   });
 
 const resolveValidation = (validated, next) => {
