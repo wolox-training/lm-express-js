@@ -3,15 +3,18 @@ const request = require('supertest'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
   User = require('../app/models').user,
-  { getAlbumById } = require('../app/services/typicode'),
+  { albumsListMock } = require('./support/mocking'),
   correctEmail = 'albumslist@wolox.com.ar',
   correctEmail2 = 'albumlists2@wolox.com.ar',
   correctPassword = 'password',
+  albumTitle = 'quidem molestiae enim',
   validationErrorStatus = 401,
   permissionErrorStatus = 403;
 
-const buyTwoAlbums = (id1, id2, buyerToken) =>
-  request(app)
+const buyTwoAlbums = (id1, id2, buyerToken) => {
+  albumsListMock(1, albumTitle);
+  albumsListMock(10, albumTitle);
+  return request(app)
     .post(`/albums/${id1}`)
     .send({ token: buyerToken })
     .then(() =>
@@ -19,21 +22,15 @@ const buyTwoAlbums = (id1, id2, buyerToken) =>
         .post(`/albums/${id2}`)
         .send({ token: buyerToken })
     );
+};
 
 const checkBoughtAlbums = (response, id1, id2) => {
   expect(response.status).toBe(200);
   expect(response.body.length).toBe(2);
   expect(response.body[0].albumId).toBe(id1);
   expect(response.body[1].albumId).toBe(id2);
-  return getAlbumById(id1)
-    .then(album => {
-      expect(response.body[0].albumName).toBe(album.title);
-    })
-    .then(() =>
-      getAlbumById(id2).then(album => {
-        expect(response.body[1].albumName).toBe(album.title);
-      })
-    );
+  expect(response.body[0].albumName).toBe(albumTitle);
+  expect(response.body[1].albumName).toBe(albumTitle);
 };
 
 describe('GET /users/:user_id/albums', () => {
@@ -49,7 +46,7 @@ describe('GET /users/:user_id/albums', () => {
     test('Test missing token', () =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -85,7 +82,7 @@ describe('GET /users/:user_id/albums', () => {
     test('Test request with valid user_id an invalid token', () =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -106,10 +103,13 @@ describe('GET /users/:user_id/albums', () => {
     let validToken1 = '';
     let validToken2 = '';
 
-    const askForAlbums = (userId, token) =>
-      request(app)
+    const askForAlbums = (userId, token) => {
+      albumsListMock(1, albumTitle);
+      albumsListMock(10, albumTitle);
+      return request(app)
         .get(`/users/${userId}/albums`)
         .send({ token });
+    };
 
     const requestToken = () =>
       request(app)
@@ -154,7 +154,7 @@ describe('GET /users/:user_id/albums', () => {
     test('Test buy album and list albums with same not-admin user', () =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -168,12 +168,12 @@ describe('GET /users/:user_id/albums', () => {
       hashPassword(correctPassword)
         .then(pass =>
           factory
-            .create('userNotAdmin', {
+            .create('user', {
               email: correctEmail,
               password: pass
             })
             .then(() =>
-              factory.create('userNotAdmin', {
+              factory.create('user', {
                 email: correctEmail2,
                 password: pass
               })
@@ -195,7 +195,7 @@ describe('GET /users/:user_id/albums', () => {
               password: pass
             })
             .then(() =>
-              factory.create('userNotAdmin', {
+              factory.create('user', {
                 email: correctEmail2,
                 password: pass
               })

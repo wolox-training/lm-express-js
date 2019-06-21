@@ -9,21 +9,20 @@ const request = require('supertest'),
   User = require('../app/models').user;
 
 describe('POST /users/sessions/invalidate_all', () => {
-  test('Test create two users, log in, invalidate al sessions from one of them', () => {
-    let token = '';
-    return hashPassword(correctPassword)
+  let token = '';
+  beforeEach(() =>
+    hashPassword(correctPassword)
       .then(pass =>
-        factory
-          .create('user', {
+        Promise.all([
+          factory.create('user', {
             email: correctEmail,
             password: pass
+          }),
+          factory.create('user', {
+            email: correctEmail2,
+            password: pass
           })
-          .then(() =>
-            factory.create('user', {
-              email: correctEmail2,
-              password: pass
-            })
-          )
+        ])
       )
       .then(() =>
         request(app)
@@ -34,11 +33,12 @@ describe('POST /users/sessions/invalidate_all', () => {
           })
       )
       .then(response => ({ token } = response.body))
-      .then(() =>
-        request(app)
-          .post('/users/sessions/invalidate_all')
-          .send({ token })
-      )
+  );
+  test('Test create two users, log in one of them, invalidate all sessions and log in with the other one', () =>
+    request(app)
+      .post('/users/sessions/invalidate_all')
+      .send({ token })
+
       .then(() =>
         User.findOne({ where: { email: correctEmail } }).then(foundUser => {
           expect(foundUser.invalidateTime).toBeGreaterThan(0);
@@ -75,6 +75,40 @@ describe('POST /users/sessions/invalidate_all', () => {
           .then(response => {
             expect(response.status).toBe(200);
           })
-      );
+      ));
+
+  test('Test create two users, log in both of them, invalidate all sessions from one of them', () => {
+    let token2 = '';
+    return request(app)
+      .post('/users/sessions')
+      .send({
+        email: correctEmail2,
+        password: correctPassword
+      })
+      .then(response => {
+        token2 = response.body.token;
+      })
+      .then(() =>
+        request(app)
+          .post('/users/sessions/invalidate_all')
+          .send({ token })
+      )
+      .then(() =>
+        User.findOne({ where: { email: correctEmail2 } }).then(foundUser => {
+          expect(foundUser.invalidateTime).toBe(0);
+        })
+      )
+      .then(() =>
+        request(app)
+          .get('/users')
+          .send({
+            token: token2,
+            page: 1,
+            limit: 10
+          })
+      )
+      .then(response => {
+        expect(response.status).toBe(200);
+      });
   });
 });

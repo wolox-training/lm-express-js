@@ -5,12 +5,15 @@ const request = require('supertest'),
   User = require('../app/models').user,
   Purchase = require('../app/models').purchase,
   { hashPassword } = require('../app/helpers/hasher'),
+  { albumsListMock, albumsMock, albumsListMockError } = require('./support/mocking'),
   validationErrorStatus = 401,
   apiErrorStatus = 502,
   correctlyPurchasedStatus = 200,
   token = 'token',
   correctEmail = 'purchase@wolox.com.ar',
   correctPassword = 'password',
+  albumTitle = 'quidem molestiae enim',
+  albumsNockAmount = 1,
   albumId = 1,
   userId = 1;
 
@@ -32,8 +35,10 @@ describe('POST /albums/:id', () => {
           expect(response.status).toBe(validationErrorStatus);
         }));
 
-    test('Send id of a non existing album', () =>
-      requestAlbums()
+    test('Send id of a non existing album', () => {
+      albumsMock(albumId, albumTitle);
+      albumsListMockError(albumsNockAmount + 1);
+      return requestAlbums()
         .then(albums =>
           request(app)
             .post(`/albums/${albums.length + 1}`)
@@ -41,21 +46,14 @@ describe('POST /albums/:id', () => {
         )
         .then(response => {
           expect(response.status).toBe(apiErrorStatus);
-        }));
-
-    test('Send a null token', () => {
-      request(app)
-        .post('/albums/1')
-        .send({})
-        .then(response => {
-          expect(response.status).toBe(validationErrorStatus);
         });
     });
 
-    test('Send an invalid token', () => {
-      request(app)
+    test.each([{}, { token }])('Send null and invalid token', body => {
+      albumsListMock(albumId, albumTitle);
+      return request(app)
         .post('/albums/1')
-        .send({ token })
+        .send(body)
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
         });
@@ -64,10 +62,10 @@ describe('POST /albums/:id', () => {
 
   describe('Buy an album', () => {
     let validToken = '';
-    beforeEach(done =>
+    beforeEach(() =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -82,7 +80,7 @@ describe('POST /albums/:id', () => {
         )
         .then(response => {
           validToken = response.body.token;
-          done();
+          albumsListMock(albumId, albumTitle);
         })
     );
 
@@ -107,13 +105,14 @@ describe('POST /albums/:id', () => {
         .send({
           token: validToken
         })
-        .then(() =>
-          request(app)
+        .then(() => {
+          albumsListMock(albumId, albumTitle);
+          return request(app)
             .post('/albums/1')
             .send({
               token: validToken
-            })
-        )
+            });
+        })
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
           return Purchase.findAndCountAll({ where: { userId, albumId } });
