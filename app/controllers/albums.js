@@ -44,8 +44,9 @@ exports.buyAlbum = (req, res, next) => {
     .catch(next);
 };
 
-exports.listAlbums = (req, res, next) =>
-  getEmailFromToken(req.body.token)
+exports.listAlbums = (req, res, next) => {
+  logger.info(`Attempting to list albums of user with id ${req.params.user_id}`);
+  return getEmailFromToken(req.body.token)
     .then(applicantEmail => User.findUserByEmail(applicantEmail))
     .then(applicantUser => {
       if (!applicantUser) {
@@ -60,3 +61,23 @@ exports.listAlbums = (req, res, next) =>
       }
     })
     .catch(next);
+};
+
+exports.listAlbumsPhotos = (req, res, next) => {
+  logger.info(`Attempting to list photos of album with id ${req.params.id}`);
+  const albumId = parseInt(req.params.id);
+  return getEmailFromToken(req.body.token)
+    .then(email => User.findUserByEmail(email))
+    .then(user =>
+      Purchase.findPurchase(user.id, albumId).then(foundPurchase => {
+        if (foundPurchase) {
+          return requestAlbumPhotos(albumId).then(albumPhotos => {
+            logger.info(`Listing albums photos of album with id ${albumId}`);
+            res.status(200).send(albumPhotos);
+          });
+        }
+        throw validationError(`User with id ${user.id} didn't buy album with id ${albumId}`);
+      })
+    )
+    .catch(next);
+};

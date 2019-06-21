@@ -1,5 +1,6 @@
 const { factory } = require('factory-girl'),
-  User = require('../../app/models').user;
+  User = require('../../app/models').user,
+  Purchase = require('../../app/models').purchase;
 
 factory.define('userNotAdmin', User, {
   firstName: factory.chance('string')(),
@@ -15,4 +16,9 @@ factory.define('userAdmin', User, {
   email: 'emailAdmin@wolox.com.ar',
   password: 'password',
   isAdmin: true
+});
+
+factory.define('purchase', Purchase, {
+  userId: 1,
+  albumId: 1
 });

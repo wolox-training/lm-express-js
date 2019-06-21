@@ -48,5 +48,6 @@ module.exports = (sequelize, DataTypes) => {
       )
 
       .catch(error => databaseError(error.message));
+
   return Purchase;
 };
