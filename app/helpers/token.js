@@ -17,3 +17,10 @@ exports.getEmailFromToken = token =>
   })
     .then(jsonString => new Promise(resolve => resolve(JSON.parse(jsonString).sub)))
     .catch(error => tokenError(error));
+
+exports.getIatFromToken = token =>
+  new Promise(resolve => {
+    resolve(jsrasign.b64toutf8(token.split('.')[1]));
+  })
+    .then(jsonString => new Promise(resolve => resolve(JSON.parse(jsonString).iat)))
+    .catch(error => tokenError(error));

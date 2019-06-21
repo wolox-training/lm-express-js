@@ -1,5 +1,6 @@
 'use strict';
-const { databaseError } = require('../errors');
+const { databaseError } = require('../errors'),
+  moment = require('moment');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -34,6 +35,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: true,
         defaultValue: false
+      },
+      invalidateTime: {
+        type: DataTypes.INTEGER
       }
     },
     { underscored: true }
@@ -50,7 +54,8 @@ module.exports = (sequelize, DataTypes) => {
         firstName,
         lastName,
         password,
-        isAdmin
+        isAdmin,
+        invalidateTime: 0
       }
     }).catch(error => databaseError(error.message));
 
@@ -66,6 +71,11 @@ module.exports = (sequelize, DataTypes) => {
     User.update({ isAdmin: true }, { where: { email } }).catch(error => databaseError(error.message));
 
   User.getUserById = id => User.findOne({ where: { id } }).catch(error => databaseError(error.message));
+
+  User.invalidateAllSessionsByEmail = email =>
+    User.update({ invalidateTime: moment().unix() }, { where: { email } }).catch(error =>
+      databaseError(error.message)
+    );
 
   return User;
 };

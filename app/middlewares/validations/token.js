@@ -2,10 +2,21 @@ const jsrasign = require('jsrsasign'),
   config = require('../../../config').common.token,
   { validationError, tokenError } = require('../../errors'),
   logger = require('../../logger'),
-  { getEmailFromToken } = require('../../helpers/token');
+  { getEmailFromToken, getIatFromToken } = require('../../helpers/token'),
+  User = require('../../models').user;
 
 const validateWithEmail = (token, email) =>
-  jsrasign.jws.JWS.verifyJWT(token, config.pass, { alg: [config.algorithm], sub: [email] });
+  User.findUserByEmail(email).then(foundUser => {
+    if (foundUser) {
+      return getIatFromToken(token).then(tokenIat => {
+        if (tokenIat > foundUser.invalidateTime) {
+          return jsrasign.jws.JWS.verifyJWT(token, config.pass, { alg: [config.algorithm], sub: [email] });
+        }
+        return false;
+      });
+    }
+    return jsrasign.jws.JWS.verifyJWT(token, config.pass, { alg: [config.algorithm], sub: [email] });
+  });
 
 const resolveValidation = (validated, next) => {
   if (validated) {

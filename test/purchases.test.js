@@ -8,7 +8,6 @@ const request = require('supertest'),
   { albumsListMock, albumsMock, albumsListMockError } = require('./support/mocking'),
   validationErrorStatus = 401,
   apiErrorStatus = 502,
-  tokenErrorStatus = 500,
   correctlyPurchasedStatus = 200,
   token = 'token',
   correctEmail = 'purchase@wolox.com.ar',
@@ -56,7 +55,7 @@ describe('POST /albums/:id', () => {
         .post('/albums/1')
         .send(body)
         .then(response => {
-          expect(response.status).toBe(tokenErrorStatus);
+          expect(response.status).toBe(validationErrorStatus);
         });
     });
   });
@@ -66,7 +65,7 @@ describe('POST /albums/:id', () => {
     beforeEach(() =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })

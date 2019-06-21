@@ -53,14 +53,8 @@ describe('POST /users', () => {
           expect(response.status).toBe(validationErrorStatus);
         }));
 
-    test('Create user with used email', () => {
-      factory.define('user', Users, buildOptions => ({
-        first_name: buildOptions.firstName,
-        last_name: buildOptions.lastName,
-        email: buildOptions.email,
-        password: buildOptions.password
-      }));
-      return factory
+    test('Create user with used email', () =>
+      factory
         .create('user', { firstName, lastName, email: correctEmail, password: correctPassword })
         .then(() =>
           request(app)
@@ -74,8 +68,7 @@ describe('POST /users', () => {
         )
         .then(response => {
           expect(response.status).toBe(validationErrorStatus);
-        });
-    });
+        }));
   });
 
   describe('Test missing parameters', () => {

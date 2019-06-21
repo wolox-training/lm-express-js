@@ -1,7 +1,6 @@
 const request = require('supertest'),
   app = require('../app.js'),
   validationErrorStatus = 401,
-  tokenErrorStatus = 500,
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
   firstName = 'fn',
@@ -43,7 +42,7 @@ describe('GET /users', () => {
           limit: 8
         })
         .then(response => {
-          expect(response.status).toBe(tokenErrorStatus);
+          expect(response.status).toBe(validationErrorStatus);
         }));
   });
 
