@@ -2,7 +2,8 @@
 
 const fs = require('fs'),
   models = require('../app/models'),
-  path = require('path');
+  path = require('path'),
+  nock = require('nock');
 
 const tables = Object.values(models.sequelize.models);
 
@@ -13,6 +14,7 @@ const truncateDatabase = () => Promise.all(tables.map(truncateTable));
 
 beforeEach(done => {
   truncateDatabase().then(() => done());
+  nock.cleanAll();
 });
 
 // including all test files
@@ -27,5 +29,8 @@ const requireAllTestFiles = pathToSearch => {
     }
   });
 };
+
+nock.disableNetConnect();
+nock.enableNetConnect('127.0.0.1');
 
 requireAllTestFiles(normalizedPath);

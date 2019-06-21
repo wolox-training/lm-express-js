@@ -3,9 +3,13 @@ const request = require('supertest'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
   { requestAlbumPhotos } = require('../app/services/typicode'),
+  { albumsListMock, albumsPhotosListMockError, albumsPhotosListMock } = require('./support/mocking'),
   correctEmail = 'albumslist@wolox.com.ar',
   correctPassword = 'password',
-  validationErrorStatus = 401;
+  albumTitle = 'quidem molestiae enim',
+  validationErrorStatus = 401,
+  albumId = 10,
+  albumIdNotPurchased = 1;
 
 describe('GET /users/albums/:id/photos', () => {
   let token = '';
@@ -17,7 +21,7 @@ describe('GET /users/albums/:id/photos', () => {
           password: pass
         })
       )
-      .then(() => factory.create('purchase', { albumId: 10, userId: 1 }))
+      .then(() => factory.create('purchase', { albumId, userId: 1 }))
       .then(() =>
         request(app)
           .post('/users/sessions')
@@ -26,22 +30,29 @@ describe('GET /users/albums/:id/photos', () => {
             password: correctPassword
           })
       )
-      .then(response => (token = response.text))
+      .then(response => {
+        token = response.text;
+      })
   );
 
-  test('Test create user, buy albums and list photos of a non-purchased album', () =>
-    request(app)
-      .get('/users/albums/2/photos')
+  test('Test create user, buy albums and list photos of a non-purchased album', () => {
+    albumsListMock(albumIdNotPurchased, albumTitle);
+    albumsPhotosListMockError(albumIdNotPurchased);
+    return request(app)
+      .get(`/users/albums/${albumIdNotPurchased}/photos`)
       .send({
         token
       })
       .then(response => {
         expect(response.status).toBe(validationErrorStatus);
-      }));
+      });
+  });
 
-  test('Test create user, buy albums and list photos', () =>
-    request(app)
-      .get('/users/albums/10/photos')
+  test('Test create user, buy albums and list photos', () => {
+    albumsListMock(albumId, albumTitle);
+    albumsPhotosListMock(albumId);
+    return request(app)
+      .get(`/users/albums/${albumId}/photos`)
       .send({
         token
       })
@@ -49,14 +60,15 @@ describe('GET /users/albums/:id/photos', () => {
         const photos = response.body;
         expect(response.status).toBe(200);
         expect(photos.length).toBeGreaterThan(0);
-
+        albumsPhotosListMock(albumId);
         for (let i = 0; i < photos.length; i++) {
-          expect(photos[i].albumId).toBe(10);
+          expect(photos[i].albumId).toBe(albumId);
           expect(photos[i].url);
           expect(photos[i].thumbnailUrl);
         }
-        return requestAlbumPhotos(10).then(servicePhotos => {
+        return requestAlbumPhotos(albumId).then(servicePhotos => {
           expect(servicePhotos).toEqual(photos);
         });
-      }));
+      });
+  });
 });

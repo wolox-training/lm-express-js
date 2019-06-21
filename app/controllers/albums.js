@@ -44,8 +44,9 @@ exports.buyAlbum = (req, res, next) => {
     .catch(next);
 };
 
-exports.listAlbums = (req, res, next) =>
-  getEmailFromToken(req.body.token)
+exports.listAlbums = (req, res, next) => {
+  logger.info(`Attempting to list albums of user with id ${req.params.user_id}`);
+  return getEmailFromToken(req.body.token)
     .then(applicantEmail => User.findUserByEmail(applicantEmail))
     .then(applicantUser => {
       if (!applicantUser) {
@@ -60,8 +61,10 @@ exports.listAlbums = (req, res, next) =>
       }
     })
     .catch(next);
+};
 
 exports.listAlbumsPhotos = (req, res, next) => {
+  logger.info(`Attempting to list photos of album with id ${req.params.id}`);
   const albumId = parseInt(req.params.id);
   return getEmailFromToken(req.body.token)
     .then(email => User.findUserByEmail(email))
