@@ -49,7 +49,7 @@ describe('GET /users/:user_id/albums', () => {
     test('Test missing token', () =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -85,7 +85,7 @@ describe('GET /users/:user_id/albums', () => {
     test('Test request with valid user_id an invalid token', () =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -154,7 +154,7 @@ describe('GET /users/:user_id/albums', () => {
     test('Test buy album and list albums with same not-admin user', () =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -168,12 +168,12 @@ describe('GET /users/:user_id/albums', () => {
       hashPassword(correctPassword)
         .then(pass =>
           factory
-            .create('userNotAdmin', {
+            .create('user', {
               email: correctEmail,
               password: pass
             })
             .then(() =>
-              factory.create('userNotAdmin', {
+              factory.create('user', {
                 email: correctEmail2,
                 password: pass
               })
@@ -195,7 +195,7 @@ describe('GET /users/:user_id/albums', () => {
               password: pass
             })
             .then(() =>
-              factory.create('userNotAdmin', {
+              factory.create('user', {
                 email: correctEmail2,
                 password: pass
               })

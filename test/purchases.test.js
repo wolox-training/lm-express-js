@@ -64,10 +64,10 @@ describe('POST /albums/:id', () => {
 
   describe('Buy an album', () => {
     let validToken = '';
-    beforeEach(done =>
+    beforeEach(() =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
@@ -82,7 +82,6 @@ describe('POST /albums/:id', () => {
         )
         .then(response => {
           validToken = response.text;
-          done();
         })
     );
 

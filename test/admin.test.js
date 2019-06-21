@@ -73,7 +73,7 @@ describe('POST /admin/users', () => {
     test('Create not-admin user and change permissions', () =>
       hashPassword(correctPassword)
         .then(pass =>
-          factory.create('userNotAdmin', {
+          factory.create('user', {
             email: correctEmail,
             password: pass
           })
