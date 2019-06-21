@@ -2,7 +2,6 @@ const jsrasign = require('jsrsasign'),
   config = require('../../../config').common.token,
   { validationError, tokenError } = require('../../errors'),
   logger = require('../../logger'),
-  User = require('../../models').user,
   { getEmailFromToken } = require('../../helpers/token');
 
 const validateWithEmail = (token, email) =>
@@ -23,10 +22,10 @@ exports.validateToken = (req, res, next) =>
     .then(validated => resolveValidation(validated, next))
     .catch(error => next(tokenError(error)));
 
-exports.validateAdminToken = (req, res, next) => {
-  getEmailFromToken(req.body.token)
-    .then(email => User.findOne({ where: { email, isAdmin: true } }))
-    .then(foundUser => validateWithEmail(req.body.token, foundUser.email))
-    .then(validated => resolveValidation(validated, next))
-    .catch(error => next(tokenError(error)));
+exports.checkNotNullToken = (req, res, next) => {
+  if (!req.body.token) {
+    return next(validationError('Null token'));
+  }
+  logger.info('Token not null');
+  return next();
 };
