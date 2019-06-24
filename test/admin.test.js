@@ -94,7 +94,7 @@ describe('POST /admin/users', () => {
               last_name: lastName,
               email: correctEmail,
               password: correctPassword,
-              token: response.text
+              token: response.body.token
             })
         )
         .then(response => {
@@ -119,7 +119,7 @@ describe('POST /admin/users', () => {
               last_name: lastName,
               email: correctAdminEmail,
               password: correctPassword,
-              token: response.text
+              token: response.body.token
             })
         )
         .then(response => {
@@ -147,7 +147,7 @@ describe('POST /admin/users', () => {
               last_name: lastName,
               email: correctEmail,
               password: correctPassword,
-              token: response.text
+              token: response.body.token
             })
         )
         .then(response => {

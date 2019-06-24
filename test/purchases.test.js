@@ -79,7 +79,7 @@ describe('POST /albums/:id', () => {
             })
         )
         .then(response => {
-          validToken = response.text;
+          validToken = response.body.token;
           albumsListMock(albumId, albumTitle);
         })
     );

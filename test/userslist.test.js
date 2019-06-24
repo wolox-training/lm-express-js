@@ -94,7 +94,7 @@ describe('GET /users', () => {
           request(app)
             .get('/users')
             .send({
-              token: response.text,
+              token: response.body.token,
               page: 1,
               limit: 10
             })

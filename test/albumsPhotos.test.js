@@ -30,9 +30,7 @@ describe('GET /users/albums/:id/photos', () => {
             password: correctPassword
           })
       )
-      .then(response => {
-        token = response.text;
-      })
+      .then(response => ({ token } = response.body))
   );
 
   test('Test create user, buy albums and list photos of a non-purchased album', () => {

@@ -32,7 +32,7 @@ describe('POST /users/sessions/invalidate_all', () => {
             password: correctPassword
           })
       )
-      .then(response => (token = response.text))
+      .then(response => ({ token } = response.body))
   );
   test('Test create two users, log in one of them, invalidate all sessions and log in with the other one', () =>
     request(app)
@@ -67,7 +67,7 @@ describe('POST /users/sessions/invalidate_all', () => {
             request(app)
               .get('/users')
               .send({
-                token: response.text,
+                token: response.body.token,
                 page: 1,
                 limit: 10
               })
@@ -86,7 +86,7 @@ describe('POST /users/sessions/invalidate_all', () => {
         password: correctPassword
       })
       .then(response => {
-        token2 = response.text;
+        token2 = response.body.token;
       })
       .then(() =>
         request(app)
