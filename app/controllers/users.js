@@ -21,7 +21,7 @@ exports.signUpAdmin = (req, res, next) => {
     .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: true }))
     .then(([user, created]) => {
       if (created) {
-        notifySignUp(user.firstName, user.email, 'from@wolox.com.ar');
+        notifySignUp(user.firstName, user.email);
         res.status(200).send(`User ${user.firstName} created as admin`);
       } else {
         User.makeAdmin(email).then(() => {
@@ -40,7 +40,7 @@ exports.signUp = (req, res, next) => {
     .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: false }))
     .then(([user, created]) => {
       if (created) {
-        notifySignUp(user.firstName, user.email, 'from@wolox.com.ar');
+        notifySignUp(user.firstName, user.email);
         res.status(200).send(`User ${user.firstName} created`);
       } else {
         throw validationError('Email already used');

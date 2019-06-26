@@ -48,6 +48,11 @@ const config = {
       tokenType: process.env.TOKEN_TYPE,
       pass: process.env.TOKEN_PASS,
       sessionTime: process.env.SESSION_TIME
+    },
+
+    email: {
+      senderEmail: process.env.SENDER_EMAIL,
+      senderPassword: process.env.SENDER_PASSWORD
     }
   }
 };

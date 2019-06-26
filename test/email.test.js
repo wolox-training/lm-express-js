@@ -6,7 +6,7 @@ describe('Test for email-notifying users on sign up', () => {
   beforeEach(() => notifySignUp.mockClear());
   notifySignUp.mockResolvedValueOnce(true);
   test('Send email', () =>
-    notifySignUp('fn', 'email@wolox.com.ar', 'from@wolox.com.ar').then(() => {
+    notifySignUp('fn', 'email@wolox.com.ar').then(() => {
       expect(notifySignUp.mock.calls.length).toBe(1);
     }));
   notifySignUp.mockResolvedValueOnce(true);
