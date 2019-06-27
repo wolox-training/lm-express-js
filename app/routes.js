@@ -7,8 +7,8 @@ const { getAlbums, getAlbumPhotos, buyAlbum, listAlbums, listAlbumsPhotos } = re
 
 exports.init = app => {
   app.get('/health', healthCheck);
-  app.get('/albums', getAlbums);
-  app.get('/albums/:id/photos', [checkNotNullToken, validateToken], getAlbumPhotos);
+  app.get('/albums', [checkNotNullToken, validateToken], getAlbums);
+  app.get('/albums/:id/photos', getAlbumPhotos);
   app.get('/users', [usersValidations.checkValidOffsetAndLimit, checkNotNullToken, validateToken], listUsers);
   app.get('/users/:user_id/albums', [usersValidations.checkValidUserId, validateToken], listAlbums);
   app.get('/users/albums/:id/photos', [validateAlbumId, validateToken], listAlbumsPhotos);

@@ -31,7 +31,7 @@ exports.getAlbums = (req, res, next) => {
     })
   });
 
-  return graphql(schema, '{ albumsList { userId, id, title } }')
+  return graphql(schema, '{ albumsList { id, title } }')
     .then(response => {
       res.status(200).send(response);
     })
