@@ -3,19 +3,44 @@ const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
   User = require('../models').user,
   logger = require('../logger'),
   Purchase = require('../models').purchase,
-  { validationError, permissionError } = require('../errors');
+  { validationError, permissionError } = require('../errors'),
+  { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList, GraphQLInt, GraphQLString } = require('graphql');
 
 exports.getAlbums = (req, res, next) => {
-  requestAlbums()
-    .then(json => {
-      res.status(200).send(json);
+  logger.info('Listing all albums');
+  const Album = new GraphQLObjectType({
+    name: 'Album',
+    fields: () => ({
+      userId: { type: GraphQLInt },
+      id: { type: GraphQLInt },
+      title: { type: GraphQLString }
+    })
+  });
+
+  const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: 'albumsListQuery',
+      fields: {
+        albumsList: {
+          type: new GraphQLList(Album),
+          resolve() {
+            return requestAlbums().then(json => json);
+          }
+        }
+      }
+    })
+  });
+
+  return graphql(schema, '{ albumsList { userId, id, title } }')
+    .then(response => {
+      res.status(200).send(response);
     })
     .catch(next);
 };
 
 exports.getAlbumPhotos = (req, res, next) => {
   const albumId = req.params.id;
-  requestAlbumPhotos(albumId)
+  return requestAlbumPhotos(albumId)
     .then(json => {
       res.status(200).send(json);
     })
@@ -25,7 +50,7 @@ exports.getAlbumPhotos = (req, res, next) => {
 exports.buyAlbum = (req, res, next) => {
   const albumId = parseInt(req.params.id);
   logger.info(`Buying album with id ${albumId}`);
-  getEmailFromToken(req.body.token)
+  return getEmailFromToken(req.body.token)
     .then(email => User.findUserByEmail(email))
     .then(foundUser => {
       if (foundUser) {
