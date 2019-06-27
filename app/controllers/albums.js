@@ -4,7 +4,7 @@ const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
   logger = require('../logger'),
   Purchase = require('../models').purchase,
   { validationError, permissionError } = require('../errors'),
-  { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList } = require('graphql'),
+  { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList, GraphQLString } = require('graphql'),
   { Album } = require('../helpers/types');
 
 exports.getAlbums = (req, res, next) => {
@@ -12,7 +12,7 @@ exports.getAlbums = (req, res, next) => {
 
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
-      name: 'albumsListQuery',
+      name: 'albumsQuery',
       fields: {
         albumsList: {
           type: new GraphQLList(Album),
@@ -97,5 +97,32 @@ exports.listAlbumsPhotos = (req, res, next) => {
         throw validationError(`User with id ${user.id} didn't buy album with id ${albumId}`);
       })
     )
+    .catch(next);
+};
+
+exports.removePurchase = (req, res, next) => {
+  logger.info(`Removing purchase of album with id ${req.params.id}`);
+
+  const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: 'removePurchaseQuery',
+      fields: {
+        removePurchase: {
+          type: GraphQLString,
+          resolve() {
+            return getEmailFromToken(req.body.token)
+              .then(email => User.findUserByEmail(email))
+              .then(user => Purchase.deletePurchase(user.id, req.params.id));
+          }
+        }
+      }
+    })
+  });
+
+  return graphql(schema, '{ removePurchase }')
+    .then(response => {
+      console.log(response);
+      res.status(200).send(response);
+    })
     .catch(next);
 };
