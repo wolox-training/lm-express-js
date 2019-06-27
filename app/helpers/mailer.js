@@ -17,20 +17,14 @@ exports.notifySignUp = (toName, toEmail, transporter = null) => {
       }
     });
   }
-
   const mailData = {
     from: config.senderEmail,
     to: toEmail,
     subject,
     text: `You just created your account. username: ${toName}, email: <${toEmail}>`
   };
-  return emailTransporter
-    .sendMail(mailData)
-    .then((error, response) => {
-      logger.info('Notifying email correctly sent.');
-      return response;
-    })
-    .catch(error => {
-      throw notificationError(error);
-    });
+
+  return emailTransporter.sendMail(mailData).catch(error => {
+    throw notificationError(error);
+  });
 };

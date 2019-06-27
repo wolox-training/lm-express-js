@@ -8,7 +8,6 @@ const request = require('supertest'),
   permissionErrorStatus = 401,
   User = require('../app/models').user,
   { notifySignUp } = require('../app/helpers/mailer');
-
 jest.mock('../app/helpers/mailer');
 notifySignUp.mockResolvedValue(true);
 

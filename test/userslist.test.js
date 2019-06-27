@@ -7,7 +7,6 @@ const request = require('supertest'),
   lastName = 'ln',
   correctPassword = 'password',
   { notifySignUp } = require('../app/helpers/mailer');
-
 jest.mock('../app/helpers/mailer');
 notifySignUp.mockResolvedValue(true);
 

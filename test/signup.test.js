@@ -10,7 +10,6 @@ const request = require('supertest'),
   correctPassword = 'password',
   correctEmail = 'email@wolox.com.ar',
   { notifySignUp } = require('../app/helpers/mailer');
-
 jest.mock('../app/helpers/mailer');
 notifySignUp.mockResolvedValue(true);
 

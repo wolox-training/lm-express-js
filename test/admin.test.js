@@ -13,7 +13,6 @@ const request = require('supertest'),
   correctAdminEmail = 'emailAdmin@wolox.com.ar',
   badToken = 'token',
   { notifySignUp } = require('../app/helpers/mailer');
-
 jest.mock('../app/helpers/mailer');
 notifySignUp.mockResolvedValue(true);
 

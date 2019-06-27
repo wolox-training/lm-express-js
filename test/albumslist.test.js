@@ -11,7 +11,6 @@ const request = require('supertest'),
   validationErrorStatus = 401,
   permissionErrorStatus = 403,
   { notifySignUp } = require('../app/helpers/mailer');
-
 jest.mock('../app/helpers/mailer');
 notifySignUp.mockResolvedValue(true);
 const buyTwoAlbums = (id1, id2, buyerToken) => {

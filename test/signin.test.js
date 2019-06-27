@@ -8,7 +8,6 @@ const request = require('supertest'),
   correctEmail1 = 'email2@wolox.com.ar',
   { notifySignUp } = require('../app/helpers/mailer');
 
-jest.mock('../app/helpers/mailer');
 notifySignUp.mockResolvedValue(true);
 
 describe('POST /susers/sessions', () => {
