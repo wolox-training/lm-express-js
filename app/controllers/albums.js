@@ -4,17 +4,11 @@ const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
   logger = require('../logger'),
   Purchase = require('../models').purchase,
   { validationError, permissionError } = require('../errors'),
-  { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList, GraphQLInt, GraphQLString } = require('graphql');
+  { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList } = require('graphql'),
+  { Album } = require('../helpers/types');
 
 exports.getAlbums = (req, res, next) => {
   logger.info('Listing all albums');
-  const Album = new GraphQLObjectType({
-    name: 'Album',
-    fields: () => ({
-      id: { type: GraphQLInt },
-      title: { type: GraphQLString }
-    })
-  });
 
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({

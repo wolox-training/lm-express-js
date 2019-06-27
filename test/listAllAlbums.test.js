@@ -11,8 +11,6 @@ const request = require('supertest'),
   validationErrorStatus = 401;
 
 describe('GET /albums', () => {
-  test.todo('List albums without token');
-
   test('List albums unauthenticated', () =>
     request(app)
       .get('/albums')
