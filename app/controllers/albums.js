@@ -11,7 +11,6 @@ exports.getAlbums = (req, res, next) => {
   const Album = new GraphQLObjectType({
     name: 'Album',
     fields: () => ({
-      userId: { type: GraphQLInt },
       id: { type: GraphQLInt },
       title: { type: GraphQLString }
     })
