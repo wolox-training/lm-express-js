@@ -1,28 +1,16 @@
-const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
+const { requestAlbumPhotos } = require('../services/typicode'),
   { getEmailFromToken } = require('../helpers/token'),
   User = require('../models').user,
   logger = require('../logger'),
   Purchase = require('../models').purchase,
   { validationError, permissionError } = require('../errors'),
-  { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList, GraphQLString } = require('graphql'),
-  { Album } = require('../helpers/types');
+  { graphql, GraphQLObjectType, GraphQLSchema } = require('graphql'),
+  { albums } = require('../graphql/albums/queries'),
+  { removeAlbum } = require('../graphql/albums/mutations');
 
 exports.getAlbums = (req, res, next) => {
   logger.info('Listing all albums');
-
-  const schema = new GraphQLSchema({
-    query: new GraphQLObjectType({
-      name: 'albumsQuery',
-      fields: {
-        albumsList: {
-          type: new GraphQLList(Album),
-          resolve() {
-            return requestAlbums().then(json => json);
-          }
-        }
-      }
-    })
-  });
+  const schema = new GraphQLSchema({ query: new GraphQLObjectType(albums) });
 
   return graphql(schema, '{ albumsList { id, title } }')
     .then(response => {
@@ -102,26 +90,9 @@ exports.listAlbumsPhotos = (req, res, next) => {
 
 exports.removePurchase = (req, res, next) => {
   logger.info(`Removing purchase of album with id ${req.params.id}`);
-
-  const schema = new GraphQLSchema({
-    query: new GraphQLObjectType({
-      name: 'removePurchaseQuery',
-      fields: {
-        removePurchase: {
-          type: GraphQLString,
-          resolve() {
-            return getEmailFromToken(req.body.token)
-              .then(email => User.findUserByEmail(email))
-              .then(user => Purchase.deletePurchase(user.id, req.params.id));
-          }
-        }
-      }
-    })
-  });
-
-  return graphql(schema, '{ removePurchase }')
+  const schema = new GraphQLSchema({ query: new GraphQLObjectType(removeAlbum) });
+  return graphql(schema, '{ removeAlbum }')
     .then(response => {
-      console.log(response);
       res.status(200).send(response);
     })
     .catch(next);
