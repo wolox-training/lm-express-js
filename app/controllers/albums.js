@@ -4,7 +4,7 @@ const { requestAlbumPhotos } = require('../services/typicode'),
   logger = require('../logger'),
   Purchase = require('../models').purchase,
   { validationError, permissionError } = require('../errors'),
-  { graphql, GraphQLObjectType, GraphQLSchema } = require('graphql'),
+  { GraphQLObjectType, GraphQLSchema, graphql } = require('graphql'),
   { albums } = require('../graphql/albums/queries');
 
 exports.getAlbums = (req, res, next) => {

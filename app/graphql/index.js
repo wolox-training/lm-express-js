@@ -8,10 +8,4 @@ module.exports = new GraphQLSchema({
       ...albums.queries
     }
   })
-  //   mutation: new GraphQLObjectType({
-  //     name: 'Mutation',
-  //     fields: {
-  //       ...albums.mutations
-  //     }
-  //   })
 });
