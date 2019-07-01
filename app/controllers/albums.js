@@ -1,28 +1,15 @@
-const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
+const { requestAlbumPhotos } = require('../services/typicode'),
   { getEmailFromToken } = require('../helpers/token'),
   User = require('../models').user,
   logger = require('../logger'),
   Purchase = require('../models').purchase,
   { validationError, permissionError } = require('../errors'),
-  { graphql, GraphQLObjectType, GraphQLSchema, GraphQLList } = require('graphql'),
-  { Album } = require('../helpers/types');
+  { graphql, GraphQLObjectType, GraphQLSchema } = require('graphql'),
+  { albums } = require('../graphql/albums/queries');
 
 exports.getAlbums = (req, res, next) => {
   logger.info('Listing all albums');
-
-  const schema = new GraphQLSchema({
-    query: new GraphQLObjectType({
-      name: 'albumsListQuery',
-      fields: {
-        albumsList: {
-          type: new GraphQLList(Album),
-          resolve() {
-            return requestAlbums().then(json => json);
-          }
-        }
-      }
-    })
-  });
+  const schema = new GraphQLSchema({ query: new GraphQLObjectType(albums) });
 
   return graphql(schema, '{ albumsList { id, title } }')
     .then(response => {
