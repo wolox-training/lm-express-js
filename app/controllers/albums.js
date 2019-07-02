@@ -3,21 +3,7 @@ const { requestAlbumPhotos } = require('../services/typicode'),
   User = require('../models').user,
   logger = require('../logger'),
   Purchase = require('../models').purchase,
-  { validationError, permissionError } = require('../errors'),
-  { graphql, GraphQLObjectType, GraphQLSchema } = require('graphql'),
-  { albums } = require('../graphql/albums/queries'),
-  { removeAlbum } = require('../graphql/albums/mutations');
-
-exports.getAlbums = (req, res, next) => {
-  logger.info('Listing all albums');
-  const schema = new GraphQLSchema({ query: new GraphQLObjectType(albums) });
-
-  return graphql(schema, '{ albumsList { id, title } }')
-    .then(response => {
-      res.status(200).send(response);
-    })
-    .catch(next);
-};
+  { validationError, permissionError } = require('../errors');
 
 exports.getAlbumPhotos = (req, res, next) => {
   const albumId = req.params.id;
@@ -88,7 +74,7 @@ exports.listAlbumsPhotos = (req, res, next) => {
     .catch(next);
 };
 
-exports.removePurchase = (req, res, next) => {
+/* exports.removePurchase = (req, res, next) => {
   logger.info(`Removing purchase of album with id ${req.params.id}`);
   const schema = new GraphQLSchema({ query: new GraphQLObjectType(removeAlbum) });
   return graphql(schema, '{ removeAlbum }')
@@ -96,4 +82,4 @@ exports.removePurchase = (req, res, next) => {
       res.status(200).send(response);
     })
     .catch(next);
-};
+};*/

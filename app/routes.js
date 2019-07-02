@@ -3,11 +3,12 @@ const albums = require('./controllers/albums'),
   { signUp, signIn, listUsers, signUpAdmin, invalidateAllSessions } = require('./controllers/users'),
   usersValidations = require('../app/middlewares/validations/users'),
   { validateToken, checkNotNullToken } = require('../app/middlewares/validations/token'),
-  { validateAlbumId } = require('../app/middlewares/validations/albums');
+  { validateAlbumId } = require('../app/middlewares/validations/albums'),
+  graphqlHTTP = require('express-graphql'),
+  schema = require('./graphql');
 
 exports.init = app => {
   app.get('/health', healthCheck);
-  app.get('/albums', [checkNotNullToken, validateToken], albums.getAlbums);
   app.get('/albums/:id/photos', albums.getAlbumPhotos);
   app.get('/users', [usersValidations.checkValidOffsetAndLimit, checkNotNullToken, validateToken], listUsers);
   app.get('/users/:user_id/albums', [usersValidations.checkValidUserId, validateToken], albums.listAlbums);
@@ -22,4 +23,5 @@ exports.init = app => {
   app.post('/albums/:id', [validateAlbumId, validateToken], albums.buyAlbum);
   app.post('/users/sessions/invalidate_all', [validateToken], invalidateAllSessions);
   app.post('/users/albums/:id/remove', [validateAlbumId, validateToken], albums.removePurchase);
+  app.use('/', [checkNotNullToken, validateToken], graphqlHTTP(() => ({ schema, graphiql: true })));
 };
