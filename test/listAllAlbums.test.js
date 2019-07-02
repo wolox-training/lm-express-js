@@ -13,8 +13,8 @@ const request = require('supertest'),
 describe('GET /albums', () => {
   test('List albums unauthenticated', () =>
     request(app)
-      .get('/albums')
-      .send({})
+      .get('/')
+      .send({ query: '{ albums{ id, title} }' })
       .then(response => {
         expect(response.status).toBe(validationErrorStatus);
       }));
@@ -38,13 +38,13 @@ describe('GET /albums', () => {
       )
       .then(response =>
         request(app)
-          .get('/albums')
-          .send({ token: response.body.token })
+          .post('/')
+          .send({ query: '{ albums{ id, title} }', token: response.body.token })
       )
       .then(response => {
-        expect(response.body.data.albumsList.length).toBe(albumsAmount);
-        expect(response.body.data.albumsList[0].id).toBe(id);
-        expect(response.body.data.albumsList[0].title).toBe(albumTitle);
+        expect(response.body.data.albums.length).toBe(albumsAmount);
+        expect(response.body.data.albums[0].id).toBe(id);
+        expect(response.body.data.albums[0].title).toBe(albumTitle);
       });
   });
 });

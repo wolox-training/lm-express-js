@@ -1,13 +1,14 @@
-const { getAlbums, getAlbumPhotos, buyAlbum, listAlbums, listAlbumsPhotos } = require('./controllers/albums'),
+const { getAlbumPhotos, buyAlbum, listAlbums, listAlbumsPhotos } = require('./controllers/albums'),
   { healthCheck } = require('./controllers/healthCheck'),
   { signUp, signIn, listUsers, signUpAdmin, invalidateAllSessions } = require('./controllers/users'),
   usersValidations = require('../app/middlewares/validations/users'),
   { validateToken, checkNotNullToken } = require('../app/middlewares/validations/token'),
-  { validateAlbumId } = require('../app/middlewares/validations/albums');
+  { validateAlbumId } = require('../app/middlewares/validations/albums'),
+  graphqlHTTP = require('express-graphql'),
+  schema = require('./graphql');
 
 exports.init = app => {
   app.get('/health', healthCheck);
-  app.get('/albums', [checkNotNullToken, validateToken], getAlbums);
   app.get('/albums/:id/photos', getAlbumPhotos);
   app.get('/users', [usersValidations.checkValidOffsetAndLimit, checkNotNullToken, validateToken], listUsers);
   app.get('/users/:user_id/albums', [usersValidations.checkValidUserId, validateToken], listAlbums);
@@ -21,4 +22,5 @@ exports.init = app => {
   );
   app.post('/albums/:id', [validateAlbumId, validateToken], buyAlbum);
   app.post('/users/sessions/invalidate_all', [validateToken], invalidateAllSessions);
+  app.use('/', [checkNotNullToken, validateToken], graphqlHTTP(() => ({ schema, graphiql: true })));
 };

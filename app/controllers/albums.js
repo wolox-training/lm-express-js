@@ -3,20 +3,7 @@ const { requestAlbumPhotos } = require('../services/typicode'),
   User = require('../models').user,
   logger = require('../logger'),
   Purchase = require('../models').purchase,
-  { validationError, permissionError } = require('../errors'),
-  { GraphQLObjectType, GraphQLSchema, graphql } = require('graphql'),
-  { albums } = require('../graphql/albums/queries');
-
-exports.getAlbums = (req, res, next) => {
-  logger.info('Listing all albums');
-  const schema = new GraphQLSchema({ query: new GraphQLObjectType(albums) });
-
-  return graphql(schema, '{ albumsList { id, title } }')
-    .then(response => {
-      res.status(200).send(response);
-    })
-    .catch(next);
-};
+  { validationError, permissionError } = require('../errors');
 
 exports.getAlbumPhotos = (req, res, next) => {
   const albumId = req.params.id;

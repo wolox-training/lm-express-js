@@ -6,9 +6,7 @@ const express = require('express'),
   routes = require('./app/routes'),
   errors = require('./app/middlewares/errors'),
   DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024 * 10,
-  DEFAULT_PARAMETER_LIMIT = 10000,
-  graphqlHTTP = require('express-graphql'),
-  schema = require('./app/graphql');
+  DEFAULT_PARAMETER_LIMIT = 10000;
 
 const bodyParserJsonConfig = () => ({
   parameterLimit: config.common.api.parameterLimit || DEFAULT_PARAMETER_LIMIT,
@@ -39,14 +37,6 @@ if (!config.isTesting) {
 }
 
 routes.init(app);
-
-app.use(
-  '/',
-  graphqlHTTP(() => ({
-    schema,
-    graphiql: true
-  }))
-);
 
 app.use(errors.handle);
 
