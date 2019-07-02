@@ -1,8 +1,12 @@
 const { GraphQLList } = require('graphql'),
   { Album } = require('./types'),
-  { requestAlbums } = require('../../services/typicode');
+  { requestAlbums } = require('../../services/typicode'),
+  logger = require('../../logger');
 
-const getAlbumsList = () => requestAlbums().then(json => json);
+const getAlbumsList = () => {
+  logger.info('Listing all albums');
+  return requestAlbums().then(json => json);
+};
 
 exports.albums = {
   name: 'albums',
