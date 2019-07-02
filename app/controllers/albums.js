@@ -73,13 +73,3 @@ exports.listAlbumsPhotos = (req, res, next) => {
     )
     .catch(next);
 };
-
-/* exports.removePurchase = (req, res, next) => {
-  logger.info(`Removing purchase of album with id ${req.params.id}`);
-  const schema = new GraphQLSchema({ query: new GraphQLObjectType(removeAlbum) });
-  return graphql(schema, '{ removeAlbum }')
-    .then(response => {
-      res.status(200).send(response);
-    })
-    .catch(next);
-};*/

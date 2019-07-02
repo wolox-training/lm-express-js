@@ -22,6 +22,5 @@ exports.init = app => {
   );
   app.post('/albums/:id', [validateAlbumId, validateToken], albums.buyAlbum);
   app.post('/users/sessions/invalidate_all', [validateToken], invalidateAllSessions);
-  app.post('/users/albums/:id/remove', [validateAlbumId, validateToken], albums.removePurchase);
   app.use('/', [checkNotNullToken, validateToken], graphqlHTTP(() => ({ schema, graphiql: true })));
 };
