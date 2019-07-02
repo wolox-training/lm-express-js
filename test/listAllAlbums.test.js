@@ -10,7 +10,7 @@ const request = require('supertest'),
   id = 1,
   validationErrorStatus = 401;
 
-describe('GET /albums', () => {
+describe('POST / (list all albums)', () => {
   test('List albums unauthenticated', () =>
     request(app)
       .get('/')
