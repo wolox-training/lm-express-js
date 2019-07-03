@@ -4,7 +4,8 @@ exports.Album = new GraphQLObjectType({
   name: 'Album',
   fields: {
     id: { type: GraphQLInt },
-    title: { type: GraphQLString }
+    title: { type: GraphQLString },
+    body: { type: GraphQLString }
   }
 });
 

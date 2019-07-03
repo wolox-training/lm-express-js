@@ -5,7 +5,7 @@ const request = require('supertest'),
   correctPassword = 'password',
   correctEmail = 'email@wolox.com.ar';
 
-describe('POST / remove album', () => {
+describe('POST / (remove album)', () => {
   let validToken = '';
   beforeEach(() =>
     hashPassword(correctPassword)

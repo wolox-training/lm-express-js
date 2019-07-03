@@ -29,3 +29,23 @@ exports.getAlbumById = albumId => {
     throw apiError(error.message);
   });
 };
+
+exports.createNewAlbum = (albumTitle, albumBody) => {
+  logger.info(`Creating new album with title: ${albumTitle}`);
+  const creatingOptions = {
+    method: 'POST',
+    body: JSON.stringify({
+      title: albumTitle,
+      body: albumBody
+    }),
+    uri: 'https://jsonplaceholder.typicode.com/posts',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8'
+    }
+  };
+  return request(creatingOptions)
+    .then(response => JSON.parse(response))
+    .catch(error => {
+      throw apiError(error.message);
+    });
+};
