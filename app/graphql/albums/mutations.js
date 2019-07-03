@@ -1,10 +1,10 @@
 const { getEmailFromToken } = require('../../helpers/token'),
-  { GraphQLString, GraphQLInt } = require('graphql'),
+  { GraphQLString, GraphQLInt, GraphQLError } = require('graphql'),
   Purchase = require('../../models').purchase,
   User = require('../../models').user,
-  { validationError } = require('../../errors'),
   { Album } = require('./types'),
-  { createNewAlbum } = require('../../services/typicode');
+  { createNewAlbum } = require('../../services/typicode'),
+  { errorName } = require('../constants');
 
 const removePurchase = (token, albumId) =>
   getEmailFromToken(token)
@@ -14,16 +14,16 @@ const removePurchase = (token, albumId) =>
         if (foundPurchase) {
           return Purchase.deletePurchase(user.id, albumId);
         }
-        throw validationError("User doesn't have that album");
+        throw new Error(errorName.VALIDATION_ERROR);
       })
     )
     .then(() => `Album with id ${albumId} removed`);
 
 const createAlbum = (albumTitle, albumBody) => {
-  if (albumTitle) {
+  if (albumTitle && albumBody) {
     return createNewAlbum(albumTitle, albumBody);
   }
-  throw validationError('albumTitle is required');
+  throw new Error(errorName.VALIDATION_ERROR);
 };
 
 exports.removeAlbum = {
@@ -32,7 +32,10 @@ exports.removeAlbum = {
   args: {
     id: { type: GraphQLInt }
   },
-  resolve: (obj, args, context) => removePurchase(context.body.token, args.id)
+  resolve: (obj, args, context) =>
+    removePurchase(context.body.token, args.id).catch(error => {
+      throw new GraphQLError(error.message);
+    })
 };
 
 exports.createAlbum = {
@@ -42,5 +45,8 @@ exports.createAlbum = {
     albumTitle: { type: GraphQLString },
     albumBody: { type: GraphQLString }
   },
-  resolve: (obj, args) => createAlbum(args.albumTitle, args.albumBody)
+  resolve: (obj, args) =>
+    createAlbum(args.albumTitle, args.albumBody).catch(error => {
+      throw new GraphQLError(error.message);
+    })
 };

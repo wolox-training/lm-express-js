@@ -3,7 +3,9 @@ const request = require('supertest'),
   { factory } = require('factory-girl'),
   { hashPassword } = require('../app/helpers/hasher'),
   correctPassword = 'password',
-  correctEmail = 'email@wolox.com.ar';
+  correctEmail = 'email@wolox.com.ar',
+  validationErrorStatus = 401,
+  validationErrorMessage = 'Validation error';
 
 describe('POST / (remove album)', () => {
   let validToken = '';
@@ -31,12 +33,14 @@ describe('POST / (remove album)', () => {
   test('Remove unpurchased album', () =>
     request(app)
       .post('/')
-      .send({ query: '{ mutation removeAlbum(id:1) }', token: validToken })
+      .send({ query: 'mutation { removeAlbum(id:1) }', token: validToken })
       .then(response => {
         expect(response.body.errors.length).toBeGreaterThan(0);
+        expect(response.body.errors[0].status).toBe(validationErrorStatus);
+        expect(response.body.errors[0].message).toBe(validationErrorMessage);
       }));
 
-  test('Buy two albums and delete one of them', () =>
+  test('Buy an album and delete it', () =>
     factory
       .create('purchase')
       .then(() =>
@@ -45,6 +49,6 @@ describe('POST / (remove album)', () => {
           .send({ query: 'mutation { removeAlbum(id:1) }', token: validToken })
       )
       .then(response => {
-        expect(response.body.data.removeAlbum);
+        expect(response.body.data.removeAlbum).toBe('Album with id 1 removed');
       }));
 });

@@ -5,7 +5,9 @@ const albums = require('./controllers/albums'),
   { validateToken, checkNotNullToken } = require('../app/middlewares/validations/token'),
   { validateAlbumId } = require('../app/middlewares/validations/albums'),
   graphqlHTTP = require('express-graphql'),
-  schema = require('./graphql');
+  schema = require('./graphql'),
+  { errorType } = require('./graphql/constants');
+const getErrorData = errorName => errorType[errorName];
 
 exports.init = app => {
   app.get('/health', healthCheck);
@@ -22,5 +24,16 @@ exports.init = app => {
   );
   app.post('/albums/:id', [validateAlbumId, validateToken], albums.buyAlbum);
   app.post('/users/sessions/invalidate_all', [validateToken], invalidateAllSessions);
-  app.use('/', [checkNotNullToken, validateToken], graphqlHTTP(() => ({ schema, graphiql: true })));
+  app.use(
+    '/',
+    [checkNotNullToken, validateToken],
+    graphqlHTTP(() => ({
+      schema,
+      graphiql: true,
+      customFormatErrorFn: error => {
+        const errorData = getErrorData(error.message);
+        return { message: errorData.message, status: errorData.statusCode };
+      }
+    }))
+  );
 };

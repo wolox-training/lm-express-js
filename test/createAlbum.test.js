@@ -6,7 +6,9 @@ const request = require('supertest'),
   correctEmail = 'email@wolox.com.ar',
   correctPassword = 'password',
   albumTitle = 'new album title',
-  albumBody = 'new album body';
+  albumBody = 'new album body',
+  validationErrorStatus = 401,
+  validationErrorMessage = 'Validation error';
 
 describe('POST / (Create album)', () => {
   let validToken = '';
@@ -42,6 +44,8 @@ describe('POST / (Create album)', () => {
       })
       .then(response => {
         expect(response.body.errors.length).toBeGreaterThan(0);
+        expect(response.body.errors[0].message).toBe(validationErrorMessage);
+        expect(response.body.errors[0].status).toBe(validationErrorStatus);
       }));
 
   test('Create album correctly', () => {
