@@ -7,7 +7,7 @@ const albums = require('./controllers/albums'),
   graphqlHTTP = require('express-graphql'),
   schema = require('./graphql'),
   { errorType } = require('./graphql/constants');
-const getErrorStatus = errorName => errorType[errorName].statusCode;
+const getErrorData = errorName => errorType[errorName];
 
 exports.init = app => {
   app.get('/health', healthCheck);
@@ -30,7 +30,10 @@ exports.init = app => {
     graphqlHTTP(() => ({
       schema,
       graphiql: true,
-      customFormatErrorFn: error => ({ message: error.message, status: getErrorStatus(error.message) })
+      customFormatErrorFn: error => {
+        const errorData = getErrorData(error.message);
+        return { message: errorData.message, status: errorData.statusCode };
+      }
     }))
   );
 };
