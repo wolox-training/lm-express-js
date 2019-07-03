@@ -31,7 +31,7 @@ describe('POST / remove album', () => {
   test('Remove unpurchased album', () =>
     request(app)
       .post('/')
-      .send({ query: '{ mutation removeAlbum(id:1) }', token: validToken })
+      .send({ query: 'mutation { removeAlbum(id:1) }', token: validToken })
       .then(response => {
         expect(response.body.errors.length).toBeGreaterThan(0);
       }));

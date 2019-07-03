@@ -1,8 +1,8 @@
 const { getEmailFromToken } = require('../../helpers/token'),
-  { GraphQLString, GraphQLInt } = require('graphql'),
+  { GraphQLString, GraphQLInt, GraphQLError } = require('graphql'),
   Purchase = require('../../models').purchase,
   User = require('../../models').user,
-  { validationError } = require('../../errors');
+  { errorName } = require('../constants');
 
 const removePurchase = (token, albumId) =>
   getEmailFromToken(token)
@@ -12,7 +12,7 @@ const removePurchase = (token, albumId) =>
         if (foundPurchase) {
           return Purchase.deletePurchase(user.id, albumId);
         }
-        throw validationError("User doesn't have that album");
+        throw new Error(errorName.VALIDATION_ERROR);
       })
     )
     .then(() => `Album with id ${albumId} removed`);
@@ -23,5 +23,9 @@ exports.removeAlbum = {
   args: {
     id: { type: GraphQLInt }
   },
-  resolve: (obj, args, context) => removePurchase(context.body.token, args.id)
+  resolve: (obj, args, context) =>
+    removePurchase(context.body.token, args.id).catch(error => {
+      const toThrow = new GraphQLError(error.message);
+      throw toThrow;
+    })
 };
