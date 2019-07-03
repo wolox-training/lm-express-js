@@ -6,9 +6,7 @@ const request = require('supertest'),
   correctEmail = 'email@wolox.com.ar',
   correctPassword = 'password',
   albumTitle = 'new album title',
-  albumBody = 'new album body',
-  validationErrorStatus = 401,
-  validationErrorMessage = 'Validation error';
+  albumBody = 'new album body';
 
 describe('POST / (Create album)', () => {
   let validToken = '';
@@ -34,19 +32,6 @@ describe('POST / (Create album)', () => {
   );
   test.todo('Create album without title');
   test.todo('Create album correctly');
-
-  test('Create album without title or body', () =>
-    request(app)
-      .post('/')
-      .send({
-        query: 'mutation { createAlbum (){id, title} }',
-        token: validToken
-      })
-      .then(response => {
-        expect(response.body.errors.length).toBeGreaterThan(0);
-        expect(response.body.errors[0].message).toBe(validationErrorMessage);
-        expect(response.body.errors[0].status).toBe(validationErrorStatus);
-      }));
 
   test('Create album correctly', () => {
     createAlbumMock(albumTitle, albumBody);
