@@ -25,7 +25,6 @@ exports.removeAlbum = {
   },
   resolve: (obj, args, context) =>
     removePurchase(context.body.token, args.id).catch(error => {
-      const toThrow = new GraphQLError(error.message);
-      throw toThrow;
+      throw new GraphQLError(error.message);
     })
 };
