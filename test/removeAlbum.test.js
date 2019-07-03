@@ -49,6 +49,6 @@ describe('POST / remove album', () => {
           .send({ query: 'mutation { removeAlbum(id:1) }', token: validToken })
       )
       .then(response => {
-        expect(response.body.data.removeAlbum);
+        expect(response.body.data.removeAlbum).toBe('Album with id 1 removed');
       }));
 });
