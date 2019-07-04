@@ -52,7 +52,9 @@ const config = {
 
     email: {
       senderEmail: process.env.SENDER_EMAIL,
-      senderPassword: process.env.SENDER_PASSWORD
+      senderPassword: process.env.SENDER_PASSWORD,
+      emailService: process.env.EMAIL_SERVICE,
+      emailSubject: process.env.EMAIL_SUBJECT
     }
   }
 };

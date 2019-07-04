@@ -5,10 +5,7 @@ const request = require('supertest'),
   lastName = 'ln1',
   correctPassword = 'password',
   correctEmail = 'email@wolox.com.ar',
-  correctEmail1 = 'email2@wolox.com.ar',
-  { notifySignUp } = require('../app/helpers/mailer');
-
-notifySignUp.mockResolvedValue(true);
+  correctEmail1 = 'email2@wolox.com.ar';
 
 describe('POST /susers/sessions', () => {
   describe('Test missing parameters', () => {

@@ -5,10 +5,7 @@ const request = require('supertest'),
   { hashPassword } = require('../app/helpers/hasher'),
   firstName = 'fn',
   lastName = 'ln',
-  correctPassword = 'password',
-  { notifySignUp } = require('../app/helpers/mailer');
-jest.mock('../app/helpers/mailer');
-notifySignUp.mockResolvedValue(true);
+  correctPassword = 'password';
 
 describe('GET /users', () => {
   describe('Test invalid inputs', () => {

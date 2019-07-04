@@ -6,10 +6,7 @@ const request = require('supertest'),
   correctEmail = 'invalidateall@wolox.com.ar',
   correctEmail2 = 'invalidateall2@wolox.com.ar',
   permissionErrorStatus = 401,
-  User = require('../app/models').user,
-  { notifySignUp } = require('../app/helpers/mailer');
-jest.mock('../app/helpers/mailer');
-notifySignUp.mockResolvedValue(true);
+  User = require('../app/models').user;
 
 describe('POST /users/sessions/invalidate_all', () => {
   let token = '';

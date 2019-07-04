@@ -3,21 +3,19 @@ const { notifySignUp } = require('../app/helpers/mailer'),
   app = require('../app.js'),
   toEmail = 'email@wolox.com.ar';
 
-jest.mock('../app/helpers/mailer');
 describe('Test for email-notifying users on sign up', () => {
-  notifySignUp.mockResolvedValueOnce(true);
-
-  test('Send email', () => {
+  beforeEach(() => {
+    notifySignUp.mockResolvedValueOnce(true);
     notifySignUp.mockClear();
-    return notifySignUp('fn', toEmail).then(() => {
-      expect(notifySignUp.mock.calls.length).toBe(1);
-    });
   });
 
-  notifySignUp.mockResolvedValueOnce(true);
-  test('Create user and sign up', () => {
-    notifySignUp.mockClear();
-    return request(app)
+  test('Send email', () =>
+    notifySignUp('fn', toEmail).then(() => {
+      expect(notifySignUp.mock.calls.length).toBe(1);
+    }));
+
+  test('Create user and sign up', () =>
+    request(app)
       .post('/users')
       .send({
         first_name: 'fn',
@@ -27,6 +25,5 @@ describe('Test for email-notifying users on sign up', () => {
       })
       .then(() => {
         expect(notifySignUp.mock.calls.length).toBe(1);
-      });
-  });
+      }));
 });

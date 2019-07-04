@@ -8,10 +8,7 @@ const request = require('supertest'),
   firstName = 'fn',
   lastName = 'ln',
   correctPassword = 'password',
-  correctEmail = 'email@wolox.com.ar',
-  { notifySignUp } = require('../app/helpers/mailer');
-jest.mock('../app/helpers/mailer');
-notifySignUp.mockResolvedValue(true);
+  correctEmail = 'email@wolox.com.ar';
 
 describe('POST /users', () => {
   describe('Test invalid password', () => {
