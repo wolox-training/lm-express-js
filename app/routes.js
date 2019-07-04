@@ -32,7 +32,7 @@ exports.init = app => {
       graphiql: true,
       customFormatErrorFn: error => {
         const errorData = getErrorData(error.message);
-        return { message: errorData.message, status: errorData.statusCode };
+        return errorData ? { message: errorData.message, status: errorData.statusCode } : error;
       }
     }))
   );

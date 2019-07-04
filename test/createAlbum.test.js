@@ -30,8 +30,6 @@ describe('POST / (Create album)', () => {
         validToken = response.body.token;
       })
   );
-  test.todo('Create album without title');
-  test.todo('Create album correctly');
 
   test('Create album correctly', () => {
     createAlbumMock(albumTitle, albumBody);
@@ -47,4 +45,15 @@ describe('POST / (Create album)', () => {
         expect(response.body.data.createAlbum.body).toBe(albumBody);
       });
   });
+
+  test('Create album without params', () =>
+    request(app)
+      .post('/')
+      .send({
+        query: 'mutation { createAlbum (){id, title, body} }',
+        token: validToken
+      })
+      .then(response => {
+        expect(response.body.errors[0].message).toMatch(/Syntax Error*/);
+      }));
 });
