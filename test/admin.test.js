@@ -11,10 +11,7 @@ const request = require('supertest'),
   correctPassword = 'password',
   correctEmail = 'email@wolox.com.ar',
   correctAdminEmail = 'emailAdmin@wolox.com.ar',
-  badToken = 'token',
-  { notifySignUp } = require('../app/helpers/mailer');
-jest.mock('../app/helpers/mailer');
-notifySignUp.mockResolvedValue(true);
+  badToken = 'token';
 
 describe('POST /admin/users', () => {
   beforeEach(() =>

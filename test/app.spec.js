@@ -1,4 +1,6 @@
-'use strict';
+const { notifySignUp } = require('../app/helpers/mailer');
+jest.mock('../app/helpers/mailer');
+notifySignUp.mockResolvedValue(true);
 
 const fs = require('fs'),
   models = require('../app/models'),
