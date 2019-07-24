@@ -66,6 +66,8 @@
     "morgan": "^1.9.1",
     "nock": "^10.0.6",
     "node-fetch": "^2.6.0",
+    "nodemailer": "^6.2.1",
+    "nodemailer-stub-transport": "^1.1.0",
     "pg": "^7.11.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",

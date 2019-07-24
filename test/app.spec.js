@@ -1,4 +1,6 @@
-'use strict';
+const { notifySignUp } = require('../app/helpers/mailer');
+jest.mock('../app/helpers/mailer');
+notifySignUp.mockResolvedValue(true);
 
 const fs = require('fs'),
   models = require('../app/models'),
@@ -6,7 +8,6 @@ const fs = require('fs'),
   nock = require('nock');
 
 const tables = Object.values(models.sequelize.models);
-
 const truncateTable = model =>
   model.destroy({ truncate: true, cascade: true, force: true, restartIdentity: true });
 

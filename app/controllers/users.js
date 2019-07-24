@@ -3,7 +3,8 @@ const { validationError, permissionError } = require('../errors'),
   logger = require('../logger'),
   { hashPassword, comparePasswords } = require('../helpers/hasher'),
   { createToken } = require('../helpers/token'),
-  { getEmailFromToken, getExpFromToken } = require('../helpers/token');
+  { getEmailFromToken, getExpFromToken } = require('../helpers/token'),
+  { notifySignUp } = require('../helpers/mailer');
 
 exports.signUpAdmin = (req, res, next) => {
   const { first_name: firstName, last_name: lastName, email, password } = req.body;
@@ -20,6 +21,7 @@ exports.signUpAdmin = (req, res, next) => {
     .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: true }))
     .then(([user, created]) => {
       if (created) {
+        notifySignUp(user.firstName, user.email);
         res.status(200).send(`User ${user.firstName} created as admin`);
       } else {
         User.makeAdmin(email).then(() => {
@@ -38,6 +40,7 @@ exports.signUp = (req, res, next) => {
     .then(hash => User.createUser({ firstName, lastName, email, password: hash, isAdmin: false }))
     .then(([user, created]) => {
       if (created) {
+        notifySignUp(user.firstName, user.email);
         res.status(200).send(`User ${user.firstName} created`);
       } else {
         throw validationError('Email already used');

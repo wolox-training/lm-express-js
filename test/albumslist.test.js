@@ -10,7 +10,6 @@ const request = require('supertest'),
   albumTitle = 'quidem molestiae enim',
   validationErrorStatus = 401,
   permissionErrorStatus = 403;
-
 const buyTwoAlbums = (id1, id2, buyerToken) => {
   albumsListMock(1, albumTitle);
   albumsListMock(10, albumTitle);
