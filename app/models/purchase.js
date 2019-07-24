@@ -49,5 +49,9 @@ module.exports = (sequelize, DataTypes) => {
 
       .catch(error => databaseError(error.message));
 
+  Purchase.deletePurchase = (userId, albumId) => {
+    Purchase.destroy({ where: { userId, albumId } }).catch(error => databaseError(error.message));
+  };
+
   return Purchase;
 };

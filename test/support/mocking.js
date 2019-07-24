@@ -54,3 +54,14 @@ exports.albumsPhotosListMockError = albumId => {
     .get(`/photos?albumId=${albumId}`)
     .reply(404, []);
 };
+
+exports.createAlbumMock = (albumTitle, albumBody) => {
+  nock('https://jsonplaceholder.typicode.com')
+    .post('/posts')
+    .reply(200, {
+      title: albumTitle,
+      body: albumBody,
+      id: 101,
+      userId: 1
+    });
+};

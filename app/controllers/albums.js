@@ -1,21 +1,13 @@
-const { requestAlbums, requestAlbumPhotos } = require('../services/typicode'),
+const { requestAlbumPhotos } = require('../services/typicode'),
   { getEmailFromToken } = require('../helpers/token'),
   User = require('../models').user,
   logger = require('../logger'),
   Purchase = require('../models').purchase,
   { validationError, permissionError } = require('../errors');
 
-exports.getAlbums = (req, res, next) => {
-  requestAlbums()
-    .then(json => {
-      res.status(200).send(json);
-    })
-    .catch(next);
-};
-
 exports.getAlbumPhotos = (req, res, next) => {
   const albumId = req.params.id;
-  requestAlbumPhotos(albumId)
+  return requestAlbumPhotos(albumId)
     .then(json => {
       res.status(200).send(json);
     })
@@ -25,7 +17,7 @@ exports.getAlbumPhotos = (req, res, next) => {
 exports.buyAlbum = (req, res, next) => {
   const albumId = parseInt(req.params.id);
   logger.info(`Buying album with id ${albumId}`);
-  getEmailFromToken(req.body.token)
+  return getEmailFromToken(req.body.token)
     .then(email => User.findUserByEmail(email))
     .then(foundUser => {
       if (foundUser) {
