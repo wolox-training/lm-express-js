@@ -7,5 +7,11 @@ module.exports = new GraphQLSchema({
     fields: {
       ...albums.queries
     }
+  }),
+  mutation: new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+      ...albums.mutations
+    }
   })
 });

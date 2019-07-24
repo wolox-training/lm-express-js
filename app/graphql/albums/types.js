@@ -7,3 +7,11 @@ exports.Album = new GraphQLObjectType({
     title: { type: GraphQLString }
   }
 });
+
+exports.Purchase = new GraphQLObjectType({
+  name: 'Purchase',
+  fields: {
+    userId: { type: GraphQLInt },
+    albumId: { type: GraphQLString }
+  }
+});
